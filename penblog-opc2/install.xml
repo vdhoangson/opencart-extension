@@ -1,0 +1,379 @@
+<modification>
+    <name>Pen Blog</name>
+    <version>1.0</version>
+    <author>vdhoangson</author>
+    <link>http://pencms.com</link>
+    <code>penblog</code>
+    <!-- Admin -->
+    <file path="admin/view/template/common/header.tpl">
+        <operation>
+            <search><![CDATA[
+                <link type="text/css" href="view/stylesheet/stylesheet.css" rel="stylesheet" media="screen" />
+            ]]></search>
+            <add position="after"><![CDATA[
+                <link type="text/css" href="view/penblog/css/penblog_stylesheet.css" rel="stylesheet" media="screen" />
+            ]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[
+                <script src="view/javascript/common.js" type="text/javascript"></script>
+            ]]></search>
+            <add position="after"><![CDATA[
+                <script src="view/penblog/js/penblog.js" type="text/javascript"></script>
+            ]]></add>
+        </operation>
+    </file>
+    <file path="admin/view/template/common/menu.tpl">
+        <operation>
+            <search><![CDATA[
+                <li id="dashboard"><a href="<?php echo $home; ?>"><i class="fa fa-dashboard fa-fw"></i> <span><?php echo $text_dashboard; ?></span></a></li>
+            ]]></search>
+            <add position="after"><![CDATA[
+            <li id="penblog"><a href="<?php echo $pen_dashboard; ?>"><i class="fa fa-pencil fa-fw"></i> <span>Pen Blog</span></a></li>
+            ]]></add>
+        </operation>
+    </file>
+    <file path="admin/controller/common/menu.php">
+        <operation>
+            <search><![CDATA[
+                return $this->load->view('common/menu', $data);
+            ]]></search>
+            <add position="before"><![CDATA[
+                $data['pen_dashboard'] = $this->url->link('penblog/dashboard', 'token=' . $this->session->data['token'], true);
+            ]]></add>
+        </operation>
+    </file>
+    <!-- Fix for OC 2.3 -->
+    <file path="admin/controller/common/column_left.php">
+        <operation>
+            <search><![CDATA[
+                // Catalog
+            ]]></search>
+            <add position="before"><![CDATA[
+                $data['menus'][] = array(
+                    'id'       => 'menu-penblog',
+                    'icon'	   => 'fa-pencil',
+                    'name'	   => 'Pen Blog',
+                    'href'     => $this->url->link('penblog/dashboard', 'token=' . $this->session->data['token'], true),
+                    'children' => array()
+                );
+            ]]></add>
+        </operation>
+    </file>
+    <file path="admin/model/setting/store.php">
+        <operation>
+            <search><![CDATA[
+                public function getTotalStoresByOrderStatusId($order_status_id) {
+            ]]></search>
+            <add position="before"><![CDATA[
+            public function getTotalStoresByArticleId($article_id) {
+                $account_query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "setting WHERE `key` = 'config_account_id' AND `value` = '" . (int)$article_id . "' AND store_id != '0'");
+
+                $checkout_query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "setting WHERE `key` = 'config_checkout_id' AND `value` = '" . (int)$article_id . "' AND store_id != '0'");
+
+                return ($account_query->row['total'] + $checkout_query->row['total']);
+            }
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/controller/setting/setting.php">
+        <operation>
+            <search><![CDATA[
+               $data['captcha_pages'] = array();
+            ]]></search>
+            <add position="after"><![CDATA[
+            $data['captcha_pages'][] = array(
+                'text'  => 'Pen Article',
+                'value' => 'penblog_article'
+            );
+            ]]></add>
+        </operation>
+    </file>
+
+
+    <!-- Catalog -->
+    <file path="catalog/view/theme/*/template/common/header.tpl">
+        <operation>
+            <search><![CDATA[</head>]]></search>
+            <add position="before"><![CDATA[
+            <link href="catalog/view/theme/default/stylesheet/penblog/penblog_stylesheet.css" rel="stylesheet">
+            <script src="catalog/view/javascript/jquery/penblog/penblog.js" type="text/javascript"></script>]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/common/header.php">
+        <!-- menu -->
+
+        <operation>
+            <search><![CDATA[
+                $data['language'] = $this->load->controller('common/language');
+            ]]></search>
+            <add position="before"><![CDATA[
+                // Menu penblog
+        $this->load->model('penblog/category');
+
+        $this->load->model('penblog/article');
+
+        $penblog_categories = $this->model_penblog_category->getCategories(0);
+
+        foreach ($penblog_categories as $category) {
+            if ($category['top']) {
+                // Level 2
+                $children_penblog = array();
+
+                $child_cat = $this->model_penblog_category->getCategories($category['category_id']);
+
+                foreach ($child_cat as $child) {
+                    $fil = array(
+                        'filter_category_id'  => $child['category_id'],
+                        'filter_sub_category' => true
+                    );
+
+                    $article_total = $this->model_penblog_article->getTotalArticles($fil);
+
+                    $children_penblog[] = array(
+                        'name'  => $child['name'] . ($this->config->get('penblog_article_count') ? ' (' . $article_total . ')' : ''),
+                        'href'  => $this->url->link('penblog/category', 'penblog_path=' . $category['category_id'] . '_' . $child['category_id'])
+                    );
+                }
+
+                // Level 1
+                $data['categories'][] = array(
+                    'name'     => $category['name'],
+                    'children' => $children_penblog,
+                    'column'   => $category['column'] ? $category['column'] : 1,
+                    'href'     => $this->url->link('penblog/category', 'penblog_path=' . $category['category_id'])
+                );
+            }
+        }
+
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/*/template/common/footer.tpl">
+        <operation>
+            <search><![CDATA[<li><a href="<?php echo $manufacturer; ?>"><?php echo $text_manufacturer; ?></a></li>]]></search>
+            <add position="before"><![CDATA[
+            <li><a href="<?php echo $penblog_testimonial; ?>"><?php echo $text_testimonial; ?></a></li>]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/common/footer.php">
+        <operation>
+            <search><![CDATA[$data['text_information'] = $this->language->get('text_information');]]></search>
+            <add position="before"><![CDATA[
+                $data['penblog_testimonial'] = $this->url->link('penblog/testimonial');
+                $data['text_testimonial'] = 'Client Testimonial';]]></add>
+        </operation>
+
+    </file>
+    <file path="catalog/controller/product/search.php">
+        <operation>
+            <search><![CDATA[
+                $data['compare'] = $this->url->link('product/compare');
+            ]]></search>
+            <add position="after"><![CDATA[
+                $data['text_article_search'] = 'Search Article';
+                $data['text_product_search'] = 'Search Product';
+                $data['link_to_article_search'] = $this->url->link('penblog/search', $url);
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="catalog/view/theme/*/template/product/search.tpl">
+        <operation>
+            <search><![CDATA[
+                <h1><?php echo $heading_title; ?></h1>
+            ]]></search>
+            <add position="replace"><![CDATA[
+                <h1><?php echo $text_product_search; ?> | <a href="<?php echo $link_to_article_search; ?>" class="welcome"><?php echo $text_article_search; ?></a></h1>
+            ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/controller/information/sitemap.php">
+                <operation>
+            <search><![CDATA[$data['text_special'] = $this->language->get('text_special');]]></search>
+            <add position="before"><![CDATA[
+                $this->load->model('penblog/category');
+
+                $data['penblog_categories'] = array();
+
+        $categories_1 = $this->model_penblog_category->getCategories(0);
+
+        foreach ($categories_1 as $category_1) {
+            $level_2_data = array();
+
+            $categories_2 = $this->model_penblog_category->getCategories($category_1['category_id']);
+
+            foreach ($categories_2 as $category_2) {
+                $level_3_data = array();
+
+                $categories_3 = $this->model_penblog_category->getCategories($category_2['category_id']);
+
+                foreach ($categories_3 as $category_3) {
+                    $level_3_data[] = array(
+                        'name' => $category_3['name'],
+                        'href' => $this->url->link('penblog/category', 'penblog_path=' . $category_1['category_id'] . '_' . $category_2['category_id'] . '_' . $category_3['category_id'])
+                    );
+                }
+
+                $level_2_data[] = array(
+                    'name'     => $category_2['name'],
+                    'children' => $level_3_data,
+                    'href'     => $this->url->link('penblog/category', 'penblog_path=' . $category_1['category_id'] . '_' . $category_2['category_id'])
+                );
+            }
+
+            $data['penblog_categories'][] = array(
+                'name'     => $category_1['name'],
+                'children' => $level_2_data,
+                'href'     => $this->url->link('penblog/category', 'penblog_path=' . $category_1['category_id'])
+            );
+        }
+
+        ]]></add>
+        </operation>
+    </file>
+    <file path="catalog/view/theme/*/template/information/sitemap.tpl">
+        <operation>
+            <search><![CDATA[<li><a href="<?php echo $contact; ?>"><?php echo $text_contact; ?></a></li>]]></search>
+            <add position="replace" offset="4"><![CDATA[<li><a href="<?php echo $contact; ?>"><?php echo $text_contact; ?></a></li>
+                                </ul>
+                                </li>
+                            </ul>
+                            <ul>
+                                <?php foreach ($penblog_categories as $cat_1) { ?>
+                                <li><a href="<?php echo $cat_1['href']; ?>"><?php echo $cat_1['name']; ?></a>
+                                <?php if ($cat_1['children']) { ?>
+                                <ul>
+                                    <?php foreach ($cat_1['children'] as $cat_2) { ?>
+                                    <li><a href="<?php echo $cat_2['href']; ?>"><?php echo $cat_2['name']; ?></a>
+                                    <?php if ($cat_2['children']) { ?>
+                                    <ul>
+                                        <?php foreach ($cat_2['children'] as $cat_3) { ?>
+                                        <li><a href="<?php echo $cat_3['href']; ?>"><?php echo $cat_3['name']; ?></a></li>
+                                        <?php } ?>
+                                    </ul>
+                                    <?php } ?>
+                                    </li>
+                                    <?php } ?>
+                                </ul>
+                                <?php } ?>
+                                </li>
+                                <?php } ?>
+                            </ul>
+                            ]]>
+                        </add>
+        </operation>
+    </file>
+    <file path="catalog/controller/feed/google_sitemap.php">
+        <operation>
+            <search><![CDATA[$output .= '</urlset>';]]></search>
+            <add position="before"><![CDATA[$this->load->model('penblog/article');
+                            $articles = $this->model_penblog_article->getArticles(array('access_level' => ($this->customer->isLogged()) ? 1 : 0));
+
+                            foreach ($articles as $article) {
+                                    $output .= '<url>';
+                                    $output .= '<loc>' . str_replace('&', '&amp;', $this->url->link('penblog/article', 'article_id=' . $article['article_id'])) . '</loc>';
+                                    $output .= '<changefreq>weekly</changefreq>';
+                                    $output .= '<priority>1.0</priority>';
+                                    $output .= '</url>';
+                            }
+                            $this->load->model('penblog/category');
+                            $output .= $this->getArticleCategories(0);]]>
+                        </add>
+        </operation>
+
+        <operation>
+            <search><![CDATA[protected function getCategories($parent_id, $current_path = '') {]]></search>
+            <add position="before"><![CDATA[protected function getArticleCategories($parent_id, $current_path = '') {
+                            $output = '';
+
+                            $results = $this->model_penblog_category->getCategories($parent_id);
+
+                            foreach ($results as $result) {
+                                    if (!$current_path) {
+                                            $new_path = $result['article_id'];
+                                    } else {
+                                            $new_path = $current_path . '_' . $result['article_id'];
+                                    }
+
+                                    $output .= '<url>';
+                                    $output .= '<loc>' . str_replace('&', '&amp;', $this->url->link('penblog/category', 'ac_path=' . $new_path)) . '</loc>';
+                                    $output .= '<changefreq>weekly</changefreq>';
+                                    $output .= '<priority>0.7</priority>';
+                                    $output .= '</url>';
+
+                                    $articles = $this->model_penblog_article->getArticles(array('category' => $result['article_id'], 'access_level' => ($this->customer->isLogged()) ? 1 : 0));
+
+                                    foreach ($articles as $article) {
+                                            $output .= '<url>';
+                                            $output .= '<loc>' . str_replace('&', '&amp;', $this->url->link('penblog/article', 'penblog_path=' . $new_path . '&article_id=' . $article['b_id'])) . '</loc>';
+                                            $output .= '<changefreq>weekly</changefreq>';
+                                            $output .= '<priority>1.0</priority>';
+                                            $output .= '</url>';
+                                    }
+
+                                    $output .= $this->getArticleCategories($result['article_id'], $new_path);
+                            }
+
+                            return $output;
+                            }]]>
+                        </add>
+        </operation>
+    </file>
+
+    <!-- SEO Url -->
+    <file path="catalog/controller/common/seo_url.php">
+        <operation>
+            <search><![CDATA[if ($url[0] == 'manufacturer_id') {]]></search>
+            <add position="before"><![CDATA[
+                if ($url[0] == 'article_id') {
+                    $this->request->get['article_id'] = $url[1];
+                }
+
+                if ($url[0] == 'penblog_category_id') {
+                    if (!isset($this->request->get['penblog_path'])) {
+                        $this->request->get['penblog_path'] = $url[1];
+                    } else {
+                        $this->request->get['penblog_path'] .= '_' . $url[1];
+                    }
+                }
+                ]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[$query->row['query'] && $url[0] != 'information_id' && $url[0] != 'manufacturer_id' && $url[0] != 'category_id' && $url[0] != 'product_id']]></search>
+            <add position="replace"><![CDATA[$query->row['query'] && $url[0] != 'information_id' && $url[0] != 'manufacturer_id' && $url[0] != 'category_id' && $url[0] != 'product_id' && $url[0] != 'penblog_category_id' && $url[0] != 'article_id']]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[elseif (isset($this->request->get['manufacturer_id'])) {]]></search>
+            <add position="replace"><![CDATA[
+                elseif (isset($this->request->get['article_id'])) {
+                    $this->request->get['route'] = 'penblog/article';
+                } elseif (isset($this->request->get['penblog_path'])) {
+                    $this->request->get['route'] = 'penblog/category';
+                } elseif (isset($this->request->get['manufacturer_id'])) {]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[($data['route'] == 'product/product' && $key == 'product_id')]]></search>
+            <add position="replace"><![CDATA[($data['route'] == 'penblog/article' && $key == 'article_id') || ($data['route'] == 'product/product' && $key == 'product_id')]]></add>
+        </operation>
+        <operation>
+            <search><![CDATA[elseif ($key == 'path') {]]></search>
+            <add position="replace"><![CDATA[elseif ($key == 'penblog_path') {
+                    $categories = explode('_', $value);
+
+                    foreach ($categories as $category) {
+                        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "url_alias WHERE `query` = 'penblog_category_id=" . (int)$category . "'");
+
+                        if ($query->num_rows && $query->row['keyword']) {
+                            $url .= '/' . $query->row['keyword'];
+                        } else {
+                            $url = '';
+                            break;
+                        }
+                    }
+                    unset($data[$key]);
+                } elseif ($key == 'path') {]]></add>
+        </operation>
+    </file>
+</modification>

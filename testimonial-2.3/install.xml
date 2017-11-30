@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+  <name>Customer Testimonial - OpenCart 2.3.x</name>
+  <code>pen_testimonial</code>
+  <version>1.0</version>
+  <author>vdhoangson</author>
+  <link>http://pencms.com</link>
+	<file path="admin/controller/common/column_left.php">
+		<operation>
+			<search><![CDATA[if ($catalog) {]]></search>
+			<add position="before"><![CDATA[
+			if ($this->user->hasPermission('access', 'catalog/testimonial')) {
+				$catalog[] = array(
+					'name'	   => $this->language->get('text_testimonial'),
+					'href'     => $this->url->link('catalog/testimonial', 'token=' . $this->session->data['token'], true),
+					'children' => array()
+				);
+			}
+			]]></add>
+		</operation>
+	</file>
+	<file path="admin/language/en-gb/common/column_left.php">
+		<operation>
+			<search><![CDATA[// Text]]></search>
+			<add position="after"><![CDATA[$_['text_testimonial']              = 'Pen Testimonial'; ]]></add>
+		</operation>
+	</file>
+</modification>
