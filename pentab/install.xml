@@ -1,0 +1,633 @@
+<modification>
+    <name>Pen Tabs for Opencart 2.3x</name>
+    <version>1.0</version>
+    <author>vdhoangson</author>
+    <link>http://pencms.com</link>
+    <code>pen_tab</code>
+
+    <file path="admin/controller/common/column_left.php">
+        <operation>
+            <search><![CDATA[if ($catalog) {]]></search>
+            <add position="before"><![CDATA[
+            if ($this->user->hasPermission('access', 'catalog/pen_tab')) {
+				$catalog[] = array(
+					'name'	   => $this->language->get('text_pen_tab'),
+					'href'     => $this->url->link('catalog/pen_tab', 'token=' . $this->session->data['token'], true),
+					'children' => array()
+				);
+			}
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/language/*/common/column_left.php">
+        <operation>
+            <search><![CDATA[$_['text_other_status']              = 'Other Statuses'; ]]></search>
+            <add position="after"><![CDATA[
+		        $_['text_pen_tab']              = 'Pen Tab';
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/controller/catalog/product.php">
+        <operation>
+            <search><![CDATA[$data['layouts'] = $this->model_design_layout->getLayouts();]]></search>
+            <add position="after"><![CDATA[
+            /* Pen Tab */
+            $data['entry_tab_title'] = 'Title:';
+            $data['entry_tab_content'] = 'Content:';
+            $data['entry_position'] = 'Position:<br /><span class="help">1 = Before all default tabs</span><span class="help">2 = After Description tab</span><span class="help">3 = After Specification tab</span><span class="help">4 = After Reviews tab</span><span class="help">5 = After all default tabs</span>';
+            $data['entry_add_to_compare'] = 'Add to Compare?<br /><span class="help">Add this tab data to product comparison page.</span>';
+
+            $data['tab_pen_tab'] = 'Pen Tab';
+            $data['tab_tab'] = 'Tab';
+
+            $data['button_add_tab'] = 'Add Tab';
+
+            if (isset($this->error['tab_title'])) {
+                $data['error_tab_title'] = $this->error['tab_title'];
+            } else {
+                $data['error_tab_title'] = array();
+            }
+
+            if (isset($this->request->post['tab'])) {
+                $data['tabs'] = $this->request->post['tab'];
+            } elseif (isset($this->request->get['product_id'])) {
+                $data['tabs'] = $this->model_catalog_product->getProductTabs($this->request->get['product_id']);
+            } else {
+                $data['tabs'] = array();
+            }
+            ]]></add>
+        </operation>
+
+        <operation>
+            <search><![CDATA[protected function validateForm() {]]></search>
+            <add position="after"><![CDATA[
+                if (isset($this->request->post['tab'])) {
+                    foreach ($this->request->post['tab'] as $key => $tab) {
+                        foreach ($tab['description'] as $language_id => $value) {
+                            if ((utf8_strlen($value['title']) < 2) || (utf8_strlen($value['title']) > 64)) {
+                                $this->error['tab_title'][$key][$language_id] = 'Tab Title must be between 2 and 64 characters!';
+                            }
+                        }
+                    }
+                }
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/view/template/catalog/product_form.tpl">
+        <operation>
+            <search><![CDATA[<li><a href="#tab-design" data-toggle="tab"><?php echo $tab_design; ?></a></li>]]></search>
+            <add position="after"><![CDATA[<li><a href="#tab-pen-tab" data-toggle="tab"><?php echo $tab_pen_tab; ?></a></li>]]></add>
+        </operation>
+
+        <operation>
+            <search><![CDATA[<div class="tab-pane" id="tab-design">]]></search>
+            <add position="before"><![CDATA[
+            <div class="tab-pane" id="tab-pen-tab">
+                <div class="row">
+                    <div class="col-sm-2">
+                        <ul class="nav nav-pills nav-stacked" id="tabs">
+                            <?php $pen_tab_row= 1; ?>
+                            <?php foreach ($tabs as $tab) { ?>
+                            <li><a href="#tab-pen-tab-<?php echo $pen_tab_row; ?>" data-toggle="tab"><i class="fa fa-minus-circle" onclick="$('a[href=\'#tab-pen-tab-<?php echo $pen_tab_row; ?>\']').parent().remove(); $('#tab-pen-tab-<?php echo $pen_tab_row; ?>').remove(); $('#tabs a:first').tab('show');"></i> <?php echo $tab_tab.' - '.$pen_tab_row; ?></a></li>
+                            <?php $pen_tab_row++; ?>
+                            <?php } ?>
+                            <li><button type="button" id="btn-add" class="btn btn-primary" onclick="addTab();"><?php echo $button_add_tab; ?></button</li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-10">
+                        <div class="tab-content">
+                            <?php $pen_tab_row= 1; ?>
+                            <?php foreach ($tabs as $tab) { ?>
+                            <div id="tab-pen-tab-<?php echo $pen_tab_row; ?>" class="tab-pane">
+                                <ul class="nav nav-tabs" id="language">
+                                    <?php foreach ($languages as $language) { ?>
+                                    <li><a href="#language<?php echo $language['language_id']; ?>" data-toggle="tab"><img src="language/<?php echo $language['code']; ?>/<?php echo $language['code']; ?>.png" title="<?php echo $language['name']; ?>" /> <?php echo $language['name']; ?></a></li>
+                                    <?php } ?>
+                                </ul>
+                                <?php foreach ($languages as $language) { ?>
+                                <div class="tab-pane" id="tab-language-<?php echo $pen_tab_row; ?>-<?php echo $language['language_id']; ?>">
+                                    <div class="form-group required">
+                                        <label class="control-label col-sm-2"><?php echo $entry_tab_title; ?></label>
+                                        <div class="col-sm-10"><input type="text" name="tab[<?php echo $pen_tab_row; ?>][description][<?php echo $language['language_id']; ?>][title]" value="<?php echo $tab['description'][$language['language_id']]['title']; ?>" class="form-control" />
+                                        <?php if (isset($error_tab_title[$pen_tab_row][$language['language_id']])) { ?>
+                                        <div class="text-danger"><?php echo $error_tab_title[$pen_tab_row][$language['language_id']]; ?></div>
+                                        <?php } ?></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-2"><?php echo $entry_tab_content; ?></label>
+                                        <div class="col-sm-10"><textarea name="tab[<?php echo $pen_tab_row; ?>][description][<?php echo $language['language_id']; ?>][content]" id="tabs_plus-<?php echo $pen_tab_row; ?>-<?php echo $language['language_id']; ?>" class="form-control"><?php echo isset($tab['description'][$language['language_id']]['content']) ? $tab['description'][$language['language_id']]['content'] : ''; ?></textarea></div>
+                                    </div>
+                                </div>
+                                <?php } ?>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2"><?php echo $entry_position; ?></label>
+                                    <div class="col-sm-10">
+                                        <select name="tab[<?php echo $pen_tab_row; ?>][position]" class="form-control">
+                                        <option value="1" <?php echo $tab['position'] == '1'?'selected="selected"':''; ?>>Before all default tabs</option>
+                                        <option value="2" <?php echo $tab['position'] == '2'?'selected="selected"':''; ?>>After Description tab</option>
+                                        <option value="3" <?php echo $tab['position'] == '3'?'selected="selected"':''; ?>>After Specification tab</option>
+                                        <option value="4" <?php echo $tab['position'] == '4'?'selected="selected"':''; ?>>After Reviews tab</option>
+                                        <option value="5" <?php echo $tab['position'] == '5'?'selected="selected"':''; ?>>After all default tabs</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2"><?php echo $entry_add_to_compare; ?></label>
+                                    <div class="col-sm-10">
+                                        <select name="tab[<?php echo $pen_tab_row; ?>][compare]" class="form-control">
+                                            <option value="1" <?php echo $tab['compare']==1?'selected="selected"':''; ?>><?php echo $text_enabled; ?></option>
+                                            <option value="0" <?php echo $tab['compare']==0?'selected="selected"':''; ?>><?php echo $text_disabled; ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2"><?php echo $entry_sort_order; ?></label>
+                                    <div class="col-sm-10"><input type="text" name="tab[<?php echo $pen_tab_row; ?>][sort_order]" value="<?php echo $tab['sort_order']; ?>" class="form-control" /></div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-2"><?php echo $entry_status; ?></label>
+                                    <div class="col-sm-10">
+                                        <select name="tab[<?php echo $pen_tab_row; ?>][status]" class="form-control">
+                                            <option value="1" <?php echo $tab['status']==1?'selected="selected"':''; ?>><?php echo $text_enabled; ?></option>
+                                            <option value="0" <?php echo $tab['status']==0?'selected="selected"':''; ?>><?php echo $text_disabled; ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php $pen_tab_row++; ?>
+                            <?php } ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            ]]></add>
+        </operation>
+
+        <operation>
+            <search><![CDATA[<?php echo $footer; ?>]]></search>
+            <add position="before"><![CDATA[
+                <!-- Pen Tab Start -->
+                <script type="text/javascript"><!--
+                var pen_tab_row = <?php echo $pen_tab_row; ?>;
+
+                function addTab() {
+                    html  = '<div id="tab-pen-tab-' + pen_tab_row + '" class="tab-pane">';
+                    html += ' <ul class="nav nav-tabs" id="tab-pen-tab-language">';
+                                <?php foreach ($languages as $language) { ?>
+                    html += '            <li><a href="#language<?php echo $language['language_id']; ?>" data-toggle="tab"><img src="language/<?php echo $language['code']; ?>/<?php echo $language['code']; ?>.png" title="<?php echo $language['name']; ?>" /> <?php echo $language['name']; ?></a></li>';
+                                <?php } ?>
+                    html += '         </ul>';
+
+                    <?php foreach ($languages as $language) { ?>
+                    html += '  <div id="tab-language-' + pen_tab_row + '-<?php echo $language['language_id']; ?>" class="tab-pane">';
+                    html += '      <div class="form-group required">';
+                    html += '        <label class="control-label col-sm-2"><?php echo $entry_tab_title; ?></label>';
+                    html += '        <div class="col-sm-10"><input type="text" name="tab[' + pen_tab_row + '][description][<?php echo $language['language_id']; ?>][title]" value="" class="form-control" /></div>';
+                    html += '      </div>';
+                    html += '      <div class="form-group">';
+                    html += '        <label class="control-label col-sm-2"><?php echo $entry_tab_content; ?></label>';
+                    html += '        <div class="col-sm-10"><textarea name="tab[' + pen_tab_row + '][description][<?php echo $language['language_id']; ?>][content]" id="tabs_plus-' + pen_tab_row + '-<?php echo $language['language_id']; ?>" class="form-control"></textarea></div>';
+                    html += '      </div>';
+                    html += '  </div>';
+                    <?php } ?>
+
+                    html += '    <div class="form-group">';
+                    html += '      <label class="control-label col-sm-2"><?php echo $entry_position; ?></label>';
+                    html += '      <div class="col-sm-10"><select name="tab[' + pen_tab_row + '][position]" class="form-control">';
+                    html += '        <option value="1">Before all default tabs</option>';
+                    html += '        <option value="2" selected="selected">After Description tab</option>';
+                    html += '        <option value="3">After Specification tab</option>';
+                    html += '        <option value="4">After Reviews tab</option>';
+                    html += '        <option value="5">After all default tabs</option>';
+                    html += '      </select>';
+                    html += '      </div>';
+                    html += '    </div>';
+                    html += '    <div class="form-group">';
+                    html += '      <label class="control-label col-sm-2"><?php echo $entry_add_to_compare; ?></label>';
+                    html += '      <div class="col-sm-10"><select class="form-control" name="tab[' + pen_tab_row + '][compare]">';
+                    html += '        <option value="1"><?php echo $text_yes; ?></option>';
+                    html += '        <option value="0" selected="selected"><?php echo $text_no; ?></option>';
+                    html += '      </select>';
+                    html += '      </div>';
+                    html += '    </div>';
+                    html += '    <div class="form-group">';
+                    html += '      <label class="control-label col-sm-2"><?php echo $entry_sort_order; ?></label>';
+                    html += '      <div class="col-sm-10"><input type="text" name="tab[' + pen_tab_row + '][sort_order]" value="0" size="2" class="form-control" /></div>';
+                    html += '    </div>';
+                    html += '    <div class="form-group">';
+                    html += '      <label class="control-label col-sm-2"><?php echo $entry_status; ?></label>';
+                    html += '      <div class="col-sm-10"><select class="form-control" name="tab[' + pen_tab_row + '][status]">';
+                    html += '        <option value="1" selected="selected"><?php echo $text_enabled; ?></option>';
+                    html += '        <option value="0"><?php echo $text_disabled; ?></option>';
+                    html += '      </select>';
+                    html += '      </div>';
+                    html += '    </div>';
+                    html += '</div>';
+
+                    $('#tab-pen-tab .tab-content').append(html);
+
+                    $('#tabs > li:last-child').before('<li><a href="#tab-pen-tab-' + pen_tab_row + '" data-toggle="tab"><i class="fa fa-minus-circle" onclick=" $(\'#pen-tab a:first\').tab(\'show\');$(\'a[href=\\\'#tab-pen-tab' + pen_tab_row + '\\\']\').parent().remove(); $(\'#tab-pen-tab-' + pen_tab_row + '\').remove();"></i> <?php echo $tab_tab; ?>' + pen_tab_row + '</li>');
+
+                    $('#tabs a[href=\'#tab-pen-tab-' + pen_tab_row + '\']').tab('show');
+                    $('#tabs #tab-pen-tab-language a:first').tab('show');
+
+                    pen_tab_row++;
+                }
+                $('#tab-pen-tab a:first').tab('show');
+                //--></script>
+                <!-- Pen Tab End -->
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/model/catalog/product.php">
+        <operation>
+            <search><![CDATA[if (isset($data['product_attribute'])) {]]></search>
+            <add position="before"><![CDATA[
+                /* Pen Tab */
+                if (isset($data['tab'])) {
+                    foreach ($data['tab'] as $tab) {
+                        $this->db->query("INSERT INTO " . DB_PREFIX . "pen_tab SET position = '" . (int)$tab['position'] . "', compare = '" . (int)$tab['compare'] . "', type = 'pb', sort_order = '" .  (int)$tab['sort_order'] . "', status = '" . (int)$tab['status'] . "'");
+
+                        $tab_id = $this->db->getLastId();
+
+                        foreach ($tab['description'] as $language_id => $value) {
+                            $this->db->query("INSERT INTO " . DB_PREFIX . "pen_tab_description SET tab_id = '" . (int)$tab_id . "', language_id = '" . (int)$language_id . "', title = '" . $this->db->escape($value['title']) . "', content = '" . $this->db->escape($value['content']) . "'");
+                        }
+
+                        $this->db->query("INSERT INTO " . DB_PREFIX . "pen_tab_to_product SET tab_id = '" . (int)$tab_id . "', product_id = '" . (int)$product_id . "'");
+                    }
+                }
+
+                if (isset($data['tab_tb'])) {
+                    foreach ($data['tab_tb'] as $tab_tb_id) {
+                        $this->db->query("INSERT INTO " . DB_PREFIX . "pen_tab_to_product SET tab_id = '" . (int)$tab_tb_id . "', product_id = '" . (int)$product_id . "'");
+                    }
+                }
+                /* End Pen Tab */
+            ]]></add>
+        </operation>
+
+        <operation>
+            <search><![CDATA[public function editProduct($product_id, $data) {]]></search>
+            <add position="after"><![CDATA[
+                /* Pen Tab */
+                $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "pen_tab t LEFT JOIN " . DB_PREFIX . "pen_tab_to_product t2p ON (t.tab_id = t2p.tab_id) WHERE t.type = 'pb' AND t2p.product_id = '" . (int)$product_id . "'");
+
+                foreach ($query->rows as $tab) {
+                    $this->db->query("DELETE FROM " . DB_PREFIX . "pen_tab_description WHERE tab_id = '" . (int)$tab['tab_id'] . "'");
+                    $this->db->query("DELETE FROM " . DB_PREFIX . "pen_tab WHERE tab_id = '" . (int)$tab['tab_id'] . "'");
+                    $this->db->query("DELETE FROM " . DB_PREFIX . "pen_tab_to_product WHERE tab_id = '" . (int)$tab['tab_id'] . "' AND product_id = '" . (int)$product_id . "'");
+                }
+
+                if (isset($data['tab'])) {
+                    foreach ($data['tab'] as $tab) {
+                        $this->db->query("INSERT INTO " . DB_PREFIX . "pen_tab SET position = '" . (int)$tab['position'] . "', compare = '" . (int)$tab['compare'] . "', type = 'pb', sort_order = '" . (int)$tab['sort_order'] . "', status = '" . (int)$tab['status'] . "'");
+
+                        $tab_id = $this->db->getLastId();
+
+                        foreach ($tab['description'] as $language_id => $value) {
+                            $this->db->query("INSERT INTO " . DB_PREFIX . "pen_tab_description SET tab_id = '" . (int)$tab_id . "', language_id = '" . (int)$language_id . "', title = '" . $this->db->escape($value['title']) . "', content = '" . $this->db->escape($value['content']) . "'");
+                        }
+
+                        $this->db->query("INSERT INTO " . DB_PREFIX . "pen_tab_to_product SET tab_id = '" . (int)$tab_id . "', product_id = '" . (int)$product_id . "'");
+                    }
+                }
+                /* End Pen Tab */
+            ]]></add>
+        </operation>
+
+        <!-- Copy Product -->
+        <operation>
+            <search><![CDATA[$data['product_attribute'] = $this->getProductAttributes($product_id);]]></search>
+            <add position="before"><![CDATA[
+            /* Pen Tab */
+            $data = array_merge($data, array('tab' => $this->getProductTabs($product_id)));
+
+            $tab_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "pen_tab t LEFT JOIN " . DB_PREFIX . "pen_tab_to_product t2p ON (t.tab_id = t2p.tab_id) WHERE t.type = 'tb' AND t2p.product_id = '" . (int)$product_id . "'");
+
+            if ($tab_query->num_rows) {
+                foreach ($tab_query->rows as $tab) {
+			        $tab_tb['tab_tb'][] = $tab['tab_id'];
+                }
+
+                $data = array_merge($data, $tab_tb);
+            }
+            /* End Pen Tab */
+            ]]></add>
+        </operation>
+
+        <operation>
+            <search><![CDATA[public function deleteProduct($product_id) {]]></search>
+            <add position="after"><![CDATA[
+                /* Pen Tab */
+                $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "pen_tab t LEFT JOIN " . DB_PREFIX . "pen_tab_to_product t2p ON (t.tab_id = t2p.tab_id) WHERE t2p.product_id = '" . (int)$product_id . "'");
+
+                foreach ($query->rows as $tab) {
+                    if ($tab['type'] == 'pb') {
+                        $this->db->query("DELETE FROM " . DB_PREFIX . "pen_tab_description WHERE tab_id = '" . (int)$tab['tab_id'] . "'");
+                        $this->db->query("DELETE FROM " . DB_PREFIX . "pen_tab WHERE tab_id = '" . (int)$tab['tab_id'] . "'");
+                    }
+
+                    $this->db->query("DELETE FROM " . DB_PREFIX . "pen_tab_to_product WHERE tab_id = '" . (int)$tab['tab_id'] . "' AND product_id = '" . (int)$product_id . "'");
+                }
+                /* End Pen Tab */
+            ]]></add>
+        </operation>
+
+        <operation>
+            <search><![CDATA[public function getProductAttributes($product_id) {]]></search>
+            <add position="before"><![CDATA[
+                /* Pen Tab */
+                public function getProductTabs($product_id, $type = 'pb') {
+                    $tab_data = array();
+
+                    $tab_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "pen_tab t LEFT JOIN " . DB_PREFIX . "pen_tab_to_product t2p ON (t.tab_id = t2p.tab_id) WHERE t.type = '" . $this->db->escape($type) . "' AND t2p.product_id = '" . (int)$product_id . "' ORDER BY t.tab_id ASC");
+
+                    foreach ($tab_query->rows as $tab) {
+                        $tab_description_data = array();
+
+                        $tab_description_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "pen_tab_description WHERE tab_id = '" . $tab['tab_id'] . "'");
+
+                        foreach ($tab_description_query->rows as $tab_description) {
+
+                            $tab_description_data[$tab_description['language_id']] = array(
+                                'title'       => $tab_description['title'],
+                                'content'     => $tab_description['content']
+                            );
+                        }
+
+                        $tab_data[] = array(
+                            'position'    => $tab['position'],
+                            'compare'     => $tab['compare'],
+                            'type'        => $tab['type'],
+                            'sort_order'  => $tab['sort_order'],
+                            'status'      => $tab['status'],
+                            'description' => $tab_description_data
+                        );
+                    }
+
+                    return $tab_data;
+                }
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="admin/model/localisation/language.php">
+        <operation>
+            <search><![CDATA[// Product Attribute]]></search>
+            <add position="before"><![CDATA[
+                /* Pen Tab */
+                $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "pen_tab_description WHERE language_id = '" . (int)$this->config->get('config_language_id') . "'");
+
+                foreach ($query->rows as $tab) {
+                    $this->db->query("INSERT INTO " . DB_PREFIX . "pen_tab_description SET tab_id = '" . (int)$tab['tab_id'] . "', language_id = '" . (int)$language_id . "', title = '" . $this->db->escape($tab['title']) . "', content = '" . $this->db->escape($tab['content']) . "'");
+                }
+            ]]></add>
+        </operation>
+
+        <operation>
+            <search><![CDATA[$this->db->query("DELETE FROM " . DB_PREFIX . "product_attribute WHERE language_id = '" . (int)$language_id . "'");]]></search>
+            <add position="before"><![CDATA[
+                /* Pen Tab */
+                $this->db->query("DELETE FROM " . DB_PREFIX . "pen_tab_description WHERE language_id = '" . (int)$language_id . "'");
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="catalog/controller/product/product.php">
+        <operation>
+            <search><![CDATA[$this->model_catalog_product->updateViewed($this->request->get['product_id']);]]></search>
+            <add position="before"><![CDATA[
+            /* Pen Tab */
+            $data['tabs_product'] = $this->model_catalog_product->getTabProducts($this->request->get['product_id']);
+            $data['tabs_category'] = $this->model_catalog_product->getTabCategories($this->request->get['product_id']);
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="catalog/model/catalog/product.php">
+        <operation>
+            <search><![CDATA[public function getProductAttributes($product_id) {]]></search>
+            <add position="before"><![CDATA[
+                /* Pen Tab */
+                public function getTabProducts($product_id) {
+                    $tab_data = array();
+
+                    $tab_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "pen_tab t LEFT JOIN " . DB_PREFIX . "pen_tab_description td ON (t.tab_id = td.tab_id) LEFT JOIN " . DB_PREFIX . "pen_tab_to_product t2p ON (t.tab_id = t2p.tab_id) WHERE t2p.product_id = '" . (int)$product_id . "' AND td.language_id = '" . $this->config->get('config_language_id') . "' AND t.status = '1' ORDER BY t.sort_order, t.tab_id ASC");
+
+                    $i = 1;
+                    foreach ($tab_query->rows as $tab) {
+                        $tab_data[] = array(
+                            'title'         => $tab['title'],
+                            'content'       => html_entity_decode($tab['content'], ENT_QUOTES, 'UTF-8'),
+                            'position'      => $tab['position'],
+                            'compare'       => $tab['compare'],
+                            'href'          => 'tabs-product' . $i
+                        );
+                        ++$i;
+                    }
+
+                    return $tab_data;
+                }
+                public function getTabCategories($product_id) {
+                    $tab_data = array();
+
+                    $tab_query = $this->db->query("SELECT * FROM " . DB_PREFIX . "pen_tab t LEFT JOIN " . DB_PREFIX . "pen_tab_description td ON (t.tab_id = td.tab_id) LEFT JOIN " . DB_PREFIX . "pen_tab_to_category t2c ON (t.tab_id = t2c.tab_id) LEFT JOIN ".DB_PREFIX."product_to_category pto ON(pto.category_id=t2c.category_id) WHERE pto.product_id = '" . (int)$product_id . "' AND td.language_id = '" . $this->config->get('config_language_id') . "' AND t.status = '1' ORDER BY t.sort_order, t.tab_id ASC");
+
+                    $i = 1;
+                    foreach ($tab_query->rows as $tab) {
+                        $tab_data[] = array(
+                            'title'         => $tab['title'],
+                            'content'       => html_entity_decode($tab['content'], ENT_QUOTES, 'UTF-8'),
+                            'position'      => $tab['position'],
+                            'compare'       => $tab['compare'],
+                            'href'          => 'tabs-category' . $i
+                        );
+                        ++$i;
+                    }
+
+                    return $tab_data;
+                }
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="catalog/view/theme/*/template/product/product.tpl">
+        <operation error="skip"><!-- Default Theme -->
+            <search><![CDATA[<li class="active"><a href="#tab-description" data-toggle="tab"><?php echo $tab_description; ?></a></li>]]></search>
+            <add position="replace" offset="6"><![CDATA[
+                <!-- Pen Tab Start -->
+                <?php if ($tabs_product) { ?>
+                <?php foreach ($tabs_product as $tab) { ?>
+                <?php if ($tab['position'] == '1') { ?>
+                <li class="active"><a href="#<?php echo $tab['href']; ?>" data-toggle="tab"><?php echo $tab['title']; ?></a></li>
+                <?php } ?>
+                <?php } ?>
+                <?php } ?>
+
+                <!-- Pen Tab category -->
+                <?php if ($tabs_category) { ?>
+                <?php foreach ($tabs_category as $tab) { ?>
+                <?php if ($tab['position'] == '1') { ?>
+                <li class="active"><a href="#<?php echo $tab['href']; ?>" data-toggle="tab"><?php echo $tab['title']; ?></a></li>
+                <?php } ?>
+                <?php } ?>
+                <?php } ?>
+                <!-- Pen Tab End -->
+
+                <li class="active"><a href="#tab-description" data-toggle="tab"><?php echo $tab_description; ?></a></li>
+
+                <!-- Pen Tab Start -->
+                <?php if ($tabs_product) { ?>
+                <?php foreach ($tabs_product as $tab) { ?>
+                <?php if ($tab['position'] == '2') { ?>
+                <li><a href="#<?php echo $tab['href']; ?>" data-toggle="tab"><?php echo $tab['title']; ?></a></li>
+                <?php } ?>
+                <?php } ?>
+                <?php } ?>
+
+                <?php if ($tabs_category) { ?>
+                <?php foreach ($tabs_category as $tab) { ?>
+                <?php if ($tab['position'] == '2') { ?>
+                <li><a href="#<?php echo $tab['href']; ?>" data-toggle="tab"><?php echo $tab['title']; ?></a></li>
+                <?php } ?>
+                <?php } ?>
+                <?php } ?>
+                <!-- Pen Tab End -->
+
+                <?php if ($attribute_groups) { ?>
+                <li><a href="#tab-specification" data-toggle="tab"><?php echo $tab_attribute; ?></a></li>
+                <?php } ?>
+
+                <!-- Pen Tab Start -->
+                <?php if ($tabs_product) { ?>
+                <?php foreach ($tabs_product as $tab) { ?>
+                <?php if ($tab['position'] == '3') { ?>
+                <li><a href="#<?php echo $tab['href']; ?>" data-toggle="tab"><?php echo $tab['title']; ?></a></li>
+                <?php } ?>
+                <?php } ?>
+                <?php } ?>
+
+                <?php if ($tabs_category) { ?>
+                <?php foreach ($tabs_category as $tab) { ?>
+                <?php if ($tab['position'] == '3') { ?>
+                <li><a href="#<?php echo $tab['href']; ?>" data-toggle="tab"><?php echo $tab['title']; ?></a></li>
+                <?php } ?>
+                <?php } ?>
+                <?php } ?>
+                <!-- Pen Tab End -->
+
+                <?php if ($review_status) { ?>
+                <li><a href="#tab-review" data-toggle="tab" data-toggle="tab"><?php echo $tab_review; ?></a></li>
+                <?php } ?>
+
+                <!-- Pen Tab Start -->
+                <?php if ($tabs_product) { ?>
+                <?php foreach ($tabs_product as $tab) { ?>
+                <?php if ($tab['position'] == '4') { ?>
+                <li><a href="#<?php echo $tab['href']; ?>" data-toggle="tab"><?php echo $tab['title']; ?></a></li>
+                <?php } ?>
+                <?php } ?>
+                <?php } ?>
+
+                <?php if ($tabs_category) { ?>
+                <?php foreach ($tabs_category as $tab) { ?>
+                <?php if ($tab['position'] == '4') { ?>
+                <li><a href="#<?php echo $tab['href']; ?>" data-toggle="tab"><?php echo $tab['title']; ?></a></li>
+                <?php } ?>
+                <?php } ?>
+                <?php } ?>
+                <!-- Pen Tab End -->
+
+                <!-- Pen Tab Start -->
+                <?php if ($tabs_product) { ?>
+                <?php foreach ($tabs_product as $tab) { ?>
+                <?php if ($tab['position'] == '5') { ?>
+                <li><a href="#<?php echo $tab['href']; ?>" data-toggle="tab"><?php echo $tab['title']; ?></a></li>
+                <?php } ?>
+                <?php } ?>
+                <?php } ?>
+
+                <?php if ($tabs_category) { ?>
+                <?php foreach ($tabs_category as $tab) { ?>
+                <?php if ($tab['position'] == '5') { ?>
+                <li><a href="#<?php echo $tab['href']; ?>" data-toggle="tab"><?php echo $tab['title']; ?></a></li>
+                <?php } ?>
+                <?php } ?>
+                <?php } ?>
+                <!-- Pen Tab End -->
+            ]]></add>
+        </operation>
+
+        <operation error="skip"><!-- Default Theme -->
+            <search><![CDATA[<div class="tab-content">]]></search>
+            <add position="after"><![CDATA[
+                <!-- Pen Tab Start -->
+                <?php if ($tabs_product) { ?>
+                    <?php foreach ($tabs_product as $tab) { ?>
+                    <div id="<?php echo $tab['href']; ?>" class="tab-pane">
+                    <?php echo $tab['content']; ?>
+                    </div>
+                    <?php } ?>
+                <?php } ?>
+
+                <?php if ($tabs_category) { ?>
+                    <?php foreach ($tabs_category as $tab) { ?>
+                    <div id="<?php echo $tab['href']; ?>" class="tab-pane">
+                    <?php echo $tab['content']; ?>
+                    </div>
+                    <?php } ?>
+                <?php } ?>
+                <!-- Pen Tab End -->
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="catalog/controller/product/compare.php">
+        <operation>
+            <search><![CDATA[$data['attribute_groups'] = array();]]></search>
+            <add position="before"><![CDATA[$data['tabs'] = array();]]></add>
+        </operation>
+
+        <operation>
+            <search><![CDATA[$attribute_data = array();]]></search>
+            <add position="before"><![CDATA[
+                /* Pen Tab */
+                $tabs = $this->model_catalog_product->getTabProducts($product_id);
+
+                foreach ($tabs as $tab) {
+                    if ($tab['compare']) {
+                        $data['tabs'][$tab['title']][$product_id] = utf8_substr(strip_tags(html_entity_decode($tab['content'], ENT_QUOTES, 'UTF-8')), 0, 200 . '..');
+                    }
+                };
+                /* Pen Tab End */
+            ]]></add>
+        </operation>
+    </file>
+
+    <file path="catalog/view/theme/*/template/product/compare.tpl">
+        <operation error="skip">
+            <search><![CDATA[<td><?php echo $text_weight; ?></td>]]></search>
+            <add position="before"><![CDATA[
+            <!-- Pen Tab Start -->
+            <?php foreach ($tabs as $title => $tab) { ?>
+            <tr>
+                <td><?php echo $title; ?></td>
+                <?php foreach ($products as $product) { ?>
+                <td class="description">
+                <?php if (array_key_exists($product['product_id'], $tab)) { ?>
+                <?php echo $tab[$product['product_id']]; ?>
+                <?php } ?>
+                </td>
+                <?php } ?>
+            </tr>
+            <?php } ?>
+            <!-- Pen Tab End -->
+            ]]></add>
+        </operation>
+    </file>
+</modification>
