@@ -230,8 +230,8 @@ class ControllerCatalogPenTab extends Controller {
 		// Categories
 		$this->load->model('catalog/category');
 
-		if (isset($this->request->post['tab_category'])) {
-			$categories = $this->request->post['tab_category'];
+		if (isset($this->request->post['category'])) {
+			$categories = $this->request->post['category'];
 		} elseif (isset($this->request->get['tab_id'])) {
 			$categories = $this->model_catalog_pen_tab->getTabCategories($this->request->get['tab_id']);
 		} else {
@@ -254,8 +254,8 @@ class ControllerCatalogPenTab extends Controller {
 		// Product
 		$this->load->model('catalog/product');
 
-		if (isset($this->request->post['tab_product'])) {
-			$products = $this->request->post['tab_product'];
+		if (isset($this->request->post['product'])) {
+			$products = $this->request->post['product'];
 		} elseif (isset($this->request->get['tab_id'])) {
 			$products = $this->model_catalog_pen_tab->getTabProducts($this->request->get['tab_id']);
 		} else {

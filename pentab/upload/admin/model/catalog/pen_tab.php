@@ -9,13 +9,13 @@ class ModelCatalogPenTab extends Model {
 			$this->db->query("INSERT INTO " . DB_PREFIX . "pen_tab_description SET tab_id = '" . (int)$tab_id . "', language_id = '" . (int)$language_id . "', title = '" . $this->db->escape($value['title']) . "', content = '" . $this->db->escape($value['content']) . "'");
 		}
 
-		if (isset($data['product'])) {
+		if (isset($data['product']) && !empty($data['product'])) {
 			foreach ($data['product'] as $product_id) {
 				$this->db->query("INSERT INTO " . DB_PREFIX . "pen_tab_to_product SET tab_id = '" . (int)$tab_id . "', product_id = '" . (int)$product_id . "'");
 			}
 		}
 
-		if (isset($data['category'])) {
+		if (isset($data['category']) && !empty($data['category'])) {
 			foreach ($data['category'] as $category_id) {
 				$this->db->query("INSERT INTO " . DB_PREFIX . "pen_tab_to_category SET tab_id = '" . (int)$tab_id . "', category_id = '" . (int)$category_id . "'");
 			}
@@ -33,7 +33,7 @@ class ModelCatalogPenTab extends Model {
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "pen_tab_to_product WHERE tab_id = '" . (int)$tab_id . "'");
 
-		if (isset($data['product'])) {
+		if (isset($data['product']) && !empty($data['product'])) {
 			foreach ($data['product'] as $product_id) {
 				$this->db->query("INSERT INTO " . DB_PREFIX . "pen_tab_to_product SET tab_id = '" . (int)$tab_id . "', product_id = '" . (int)$product_id . "'");
 			}
@@ -41,7 +41,7 @@ class ModelCatalogPenTab extends Model {
 
 		$this->db->query("DELETE FROM " . DB_PREFIX . "pen_tab_to_category WHERE tab_id = '" . (int)$tab_id . "'");
 
-		if (isset($data['category'])) {
+		if (isset($data['product']) && !empty($data['product'])) {
 			foreach ($data['category'] as $category_id) {
 				$this->db->query("INSERT INTO " . DB_PREFIX . "pen_tab_to_category SET tab_id = '" . (int)$tab_id . "', category_id = '" . (int)$category_id . "'");
 			}
