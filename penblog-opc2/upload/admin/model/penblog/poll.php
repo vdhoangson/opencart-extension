@@ -139,7 +139,7 @@ class ModelPenBlogPoll extends Model {
 
 		$query = $this->db->query("SELECT * FROM `" .DB_PREFIX. "penblog_poll_to_article` WHERE article_id='" . (int)$article_id ."' LIMIT 1");
 
-		return $query->row['poll_id'];
+		return $query->row ? $query->row['poll_id'] : null;
 	}
 }
 ?>

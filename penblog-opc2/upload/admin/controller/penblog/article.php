@@ -522,7 +522,7 @@ class ControllerPenBlogArticle extends Controller {
 		$data['cancel'] = $this->url->link('penblog/article', 'token=' . $this->session->data['token'] . $url, true);
 
 		if (isset($this->request->get['article_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
-			$article_info = $this->model_penblog_article->getarticle($this->request->get['article_id']);
+			$article_info = $this->model_penblog_article->getArticle($this->request->get['article_id']);
 		}
 
 		$data['token'] = $this->session->data['token'];
