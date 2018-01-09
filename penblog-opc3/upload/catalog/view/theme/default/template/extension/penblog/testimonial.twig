@@ -1,0 +1,191 @@
+{{ header }}
+<div class="container">
+  <ul class="breadcrumb">
+    {% for breadcrumb in breadcrumbs %}
+    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+    {% endfor %}
+  </ul>
+  <div class="row">{{ column_left }}
+    {% if column_left and column_right %}
+    {% set class = 'col-sm-6' %}
+    {% elseif column_left or column_right %}
+    {% set class = 'col-sm-9' %}
+    {% else %}
+    {% set class = 'col-sm-12' %}
+    {% endif %}
+    <div id="content" class="{{ class }}">{{ content_top }}
+      <h1>{{ heading_title }}</h1>
+
+      <form action="{{ action }}" method="POST" enctype="multipart/form-data" id="form-testimonial" class="form-horizontal">
+          <div class="row clearfix">
+            <div class="col-md-6">
+              <h4 class="upper">{{ text_information }}</h4>
+              <fieldset>
+                <div class="form-group">
+                  <label class="col-lg-4 control-label">{{ entry_name }} <span class="require">*</span></label>
+                  <div class="col-lg-8">
+                    <input type="text" name="name" value="{{ name }}" class="form-control"/>
+                    {% if error_name %}
+                    <span class="text-danger">{{ error_name }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-lg-4 control-label">{{ entry_email }} <span class="require">*</span></label>
+                  <div class="col-lg-8">
+                    <input type="text" name="email" value="{{ email }}" class="form-control"/>
+                    {% if error_email %}
+                    <span class="text-danger">{{ error_email }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-lg-4 control-label">{{ entry_telephone }}</label>
+                  <div class="col-lg-8">
+                    <input type="text" name="telephone" value="{{ telephone }}" class="form-control"/>
+                    {% if error_telephone %}
+                    <span class="text-danger">{{ error_telephone }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-lg-4 control-label">{{ entry_company }}</label>
+                  <div class="col-lg-8">
+                    <input type="text" name="company" value="{{ company }}" class="form-control"/>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-lg-4 control-label">{{ entry_competence }}</label>
+                  <div class="col-lg-8">
+                    <input type="text" name="competence" value="{{ competence }}" class="form-control"/>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-lg-4 control-label">{{ text_avatar }}<span class="fa fa-info-circle tooltip_help" data-toggle="tooltip" title="{{ help_avatar }}"></span></label>
+                  <div class="col-lg-8 text-center">
+                    <div class="image"><img class="avatar" src="{{ thumb }}" alt="" id="thumb"/><br />
+                      <input type="hidden" name="avatar" value="{{ avatar }}" id="avatar"/>
+                      <a id="upload_image"><i class="fa fa-cloud-upload"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <a onclick="$('#thumb').attr('src', '{{ no_image }}'); $('#avatar').attr('value', '');"><i class="fa fa-trash-o"></i></a>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+            <div class="col-md-6">
+              <h4 class="upper">{{ text_enquiry }}</h4>
+              <fieldset>               
+                <textarea class="form-control" name="message" style="height:230px;" id="message">{{ message }}</textarea>
+                {% if error_message %}
+                <span class="text-danger">{{ error_message }}</span>
+                {% endif %}
+              </fieldset>
+            </div>
+            <!--col --> 
+          </div>
+          <!--row --> 
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label class="col-lg-3 control-label">{{ entry_rating }} </label>
+                <div class="col-lg-9 radio-list">
+                  <b>{{ text_bad }}</b>&nbsp;             
+                  <input type="radio" name="rating" value="1" {% if rating == 1 %} checked  {% endif %}           
+                  &nbsp;
+                  <input type="radio" name="rating" value="2" {% if rating == 2 %} checked  {% endif %}
+                  &nbsp;
+                  <input type="radio" name="rating" value="3"  {% if rating == 3 %} checked  {% endif %}             
+                  &nbsp;
+                  <input type="radio" name="rating" value="4"  {% if rating == 4 %} checked  {% endif %}
+                  &nbsp;
+                  <input type="radio" name="rating" value="5"  {% if rating == 5 %} checked  {% endif %}             
+                  &nbsp; <b>{{ text_good }}</b>
+                  {% if error_rating %}<br> 
+                  <span class="text-danger">{{ error_rating }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <!--form-group --> 
+            </div>
+            <!--col -->      
+            <div class="col-md-6">
+              {{ captcha }}
+              
+            </div>
+            <!--col -->      
+          </div>
+          <!--row --> 
+          <div class="buttons">
+            <div class="pull-left"><a href="{{ back }}" class="btn btn-primary"><i class="fa fa-arrow-left"></i> {{ button_back }}</a></div>
+            <div class="pull-right">    
+              <button type="submit" class="btn btn-primary">{{ text_send }} <i class="fa fa-arrow-right"></i></button>
+            </div>
+          </div>
+        </form>
+      {{ content_bottom }}</div>
+    {{ column_right }}</div>
+<script type="text/javascript">
+  $('#upload_image').on('click', function() {
+  var node = this;
+
+  $('#form-upload').remove();
+
+  $('body').prepend('<form enctype="multipart/form-data" id="form-upload" style="display: none;"><input type="file" name="file" /></form>');
+
+  $('#form-upload input[name=\'file\']').trigger('click');
+
+  if (typeof timer != 'undefined') {
+      clearInterval(timer);
+  }
+
+  timer = setInterval(function() {
+    if ($('#form-upload input[name=\'file\']').val() != '') {
+      clearInterval(timer);
+
+      $.ajax({
+        url: 'index.php?route=extension/penblog/testimonial/image',
+        type: 'post',
+        dataType: 'json',
+        data: new FormData($('#form-upload')[0]),
+        cache: false,
+        contentType: false,
+        processData: false,
+        beforeSend: function() {
+          $(node).button('loading');
+        },
+        complete: function() {
+          $(node).button('reset');
+        },
+        success: function(json) {
+          $('.text-danger').remove();
+
+          if (json['error']) {
+           alert(json['error']);
+          }
+
+          if (json['success']) {
+            alert(json['success']);
+            $('#avatar').attr('value', json['filename']);
+            $('#thumb').attr('src', json['thumb']);
+          }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+          alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+        }
+      });
+    }
+  }, 500);
+});
+</script> 
+</div>
+
+<style type="text/css">
+  .image img.avatar {
+        width: 75px;
+        height: 75px;
+        border-radius: 100px;
+    }
+</style>
+{{ footer }}

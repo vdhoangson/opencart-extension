@@ -1,0 +1,34 @@
+<div id="{{ module }}">
+{% if testimonials %}
+    {% for testimonial in testimonials %}
+    <article class="item testimonial with-subtitle">
+        <div class="entry-content">
+            <p>
+                {{ testimonial.message }}
+            </p>
+            <p><span class="star-{{ testimonial.rating }}"></span></p>
+        </div>
+
+        <span class="testimonial-thumbnail">
+        <img src="{{ testimonial.avatar }}" class="img-responsive avatar" alt="{{ testimonial.name }}">
+        </span>
+
+        <header class="entry-header">
+            <h3 class="entry-title">{{ testimonial.name }}</h3>
+            <p class="entry-subtitle">{{ testimonial.competence }}</p>
+        </header>
+    </article>
+    {% endfor %}
+{% endif %}
+</div>
+<script type="text/javascript"><!--
+$('#{{ module }}').owlCarousel({
+    items: 6,
+    autoPlay: 5000,
+    singleItem: true,
+    navigation: false,
+    pagination: false,
+    rtl:true,
+    transitionStyle: 'fade'
+});
+--></script>

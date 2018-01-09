@@ -1,0 +1,216 @@
+{{ header }}
+<div id="penblog_search" class="container">
+  <ul class="breadcrumb">
+    {% for breadcrumb in breadcrumbs %}
+    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+    {% endfor %}
+  </ul>
+  <div class="row">{{ column_left }}
+    {% if column_left and column_right %}
+    {% set class = 'col-sm-6' %}
+    {% elseif column_left or column_right %}
+    {% set class = 'col-sm-9' %}
+    {% else %}
+    {% set class = 'col-sm-12' %}
+    {% endif %}
+    <div id="content" class="{{ class }}">{{ content_top }}
+      <h1><a href="{{ link_to_product_search }}">{{ text_product_search }}</a> | {{ heading_title }}</h1>
+      <label class="control-label" for="input-search">{{ entry_search }}</label>
+      <div class="row">
+        <div class="col-sm-4">
+          <input type="text" name="penblog_search" value="{{ penblog_search }}" placeholder="{{ text_keyword }}" id="input-search" class="form-control" />
+        </div>
+        <div class="col-sm-3">
+          <select name="category_id" class="form-control">
+            <option value="0">{{ text_category }}</option>
+            {% for category_1 in categories %}
+            {% if category_1.category_id == category_id %}
+            <option value="{{ category_1.category_id }}" selected="selected">{{ category_1.name }}</option>
+            {% else %}
+            <option value="{{ category_1.category_id }}">{{ category_1.name }}</option>
+            {% endif %}
+            {% for category_2 in category_1.children %}
+            {% if category_2.category_id == category_id %}
+            <option value="{{ category_2.category_id }}" selected="selected">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ category_2.name }}</option>
+            {% else %}
+            <option value="{{ category_2.category_id }}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ category_2.name }}</option>
+            {% endif %}
+            {% for category_3 in category_2.children %}
+            {% if category_3.category_id == category_id %}
+            <option value="{{ category_3.category_id }}" selected="selected">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ category_3.name }}</option>
+            {% else %}
+            <option value="{{ category_3.category_id }}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ category_3.name }}</option>
+            {% endif %}
+            {% endfor %}
+            {% endfor %}
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-3">
+          <label class="checkbox-inline">
+            {% if sub_category %}
+            <input type="checkbox" name="sub_category" value="1" checked="checked" />
+            {% else %}
+            <input type="checkbox" name="sub_category" value="1" />
+            {% endif %}
+            {{ text_sub_category }}</label>
+        </div>
+      </div>
+      <p>
+        <label class="checkbox-inline">
+          {% if description %}
+          <input type="checkbox" name="description" value="1" id="description" checked="checked" />
+          {% else %}
+          <input type="checkbox" name="description" value="1" id="description" />
+          {% endif %}
+          {{ entry_description }}</label>
+      </p>
+      <input type="button" value="{{ button_search }}" id="button-search" class="btn btn-primary" />
+      <h2>{{ text_search }}</h2>
+      {% if articles %}
+      <div class="row">
+        <div class="col-sm-3 hidden-xs">
+          <div class="btn-group">
+            <button type="button" id="list-view" class="btn btn-default" data-toggle="tooltip" title="{{ button_list }}"><i class="fa fa-th-list"></i></button>
+            <button type="button" id="grid-view" class="btn btn-default" data-toggle="tooltip" title="{{ button_grid }}"><i class="fa fa-th"></i></button>
+          </div>
+        </div>
+        <div class="col-sm-1 col-sm-offset-2 text-right">
+          <label class="control-label" for="input-sort">{{ text_sort }}</label>
+        </div>
+        <div class="col-sm-3 text-right">
+          <select id="input-sort" class="form-control col-sm-3" onchange="location = this.value;">
+            {% for sorts in sorts %}
+            {% if sorts.value == '%s-%s'|format(sort, order) %}
+            <option value="{{ sorts.href }}" selected="selected">{{ sorts.text }}</option>
+            {% else %}
+            <option value="{{ sorts.href }}">{{ sorts.text }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-sm-1 text-right">
+          <label class="control-label" for="input-limit">{{ text_limit }}</label>
+        </div>
+        <div class="col-sm-2 text-right">
+          <select id="input-limit" class="form-control" onchange="location = this.value;">
+            {% for limits in limits %}
+            {% if limits.value == limit %}
+            <option value="{{ limits.href }}" selected="selected">{{ limits.text }}</option>
+            {% else %}
+            <option value="{{ limits.href }}">{{ limits.text }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <br />
+      <div class="row">
+        {% for article in articles %}
+        <div class="product-layout gen-cms-list col-xs-12">
+          <div class="product-thumb">
+            <div class="image">
+              {% if article.img_type == 'image' %}
+              <a href="{{ article['href'] }}"><img src="{{ article.thumb }}" alt="{{ article.name }}" title="{{ article.name }}" class="img-responsive" /></a>
+              {% elseif article.img_type == 'youtube' %}
+                 <iframe width="{{ catalog_image_article_width }}" height="{{ catalog_image_article_height }}" src="{{ article.thumb }}" style="border: none;"></iframe>
+              {% endif %}
+            </div>
+            <div>
+              <div class="caption">
+                <h4><a href="{{ article.href }}">{{ article.name }}</a></h4>
+                <div class="info hidden-xs">
+                  {% if article_show_author %}
+                  <span data-toggle="tooltip" title="{{ text_author }}"><i class="fa fa-user"></i> {{ author }}</span>
+                  {% endif %}
+                  {% if article_show_date_added %}
+                  <span data-toggle="tooltip" title="{{ text_date_added }}"><i class="fa fa-pencil"></i> {{ date_added }}</span>
+                  {% endif %}
+                  {% if article_show_date_modified %}
+                  <span data-toggle="tooltip" title="{{ text_date_modified }}"><i class="fa fa-pencil-square"></i> {{ date_modified }}</span>
+                  {% endif %}
+                  {% if article_show_viewed %}
+                  <span data-toggle="tooltip" title="{{ text_viewed }}"><i class="fa fa-eye"></i> {{ viewed }}</span>
+                  {% endif %}
+                  <span data-toggle="tooltip" title="{{ text_category }}"><i class="fa fa-folder"></i>
+                  {% for category in categories %}
+                  <a href="{{ category.href }}">{{ category.name }}</a>
+                  {% endfor %}
+                </div>
+                {% if article.rating %}
+                <div class="rating">
+                  {% for i in 1..5 %}
+                  {% if article.rating < i %}
+                  <span class="fa fa-stack"><i class="fa fa-star-o fa-stack-2x"></i></span>
+                  {% else %}
+                  <span class="fa fa-stack"><i class="fa fa-star fa-stack-2x"></i><i class="fa fa-star-o fa-stack-2x"></i></span>
+                  {% endif %}
+                  {% endfor %}
+                </div>
+                {% endif %}
+                <p>{{ article.short_description }}</p>
+              </div>
+              <a class="btn btn-primary button_readmore" href="{{ article.href }}">{{ text_readmore }}</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="row">
+        <div class="col-sm-6 text-left">{{ pagination }}</div>
+        <div class="col-sm-6 text-right">{{ results }}</div>
+      </div>
+      {% else %}
+      <p>{{ text_empty }}</p>
+      {% endif %}
+      {{ content_bottom }}</div>
+    {{ column_right }}</div>
+</div>
+<script type="text/javascript"><!--
+$('#button-search').bind('click', function() {
+  url = 'index.php?route=extension/penblog/search';
+
+  var penblog_search = $('#content input[name=\'penblog_search\']').prop('value');
+
+  if (penblog_search) {
+    url += '&penblog_search=' + encodeURIComponent(penblog_search);
+  }
+
+  var category_id = $('#content select[name=\'category_id\']').prop('value');
+
+  if (category_id > 0) {
+    url += '&category_id=' + encodeURIComponent(category_id);
+  }
+
+  var sub_category = $('#content input[name=\'sub_category\']:checked').prop('value');
+
+  if (sub_category) {
+    url += '&sub_category=true';
+  }
+
+  var filter_description = $('#content input[name=\'description\']:checked').prop('value');
+
+  if (filter_description) {
+    url += '&description=true';
+  }
+
+  location = url;
+});
+
+$('#content input[name=\'penblog_search\']').bind('keydown', function(e) {
+  if (e.keyCode == 13) {
+    $('#button-search').trigger('click');
+  }
+});
+
+$('select[name=\'category_id\']').on('change', function() {
+  if (this.value == '0') {
+    $('input[name=\'sub_category\']').prop('disabled', true);
+  } else {
+    $('input[name=\'sub_category\']').prop('disabled', false);
+  }
+});
+
+$('select[name=\'category_id\']').trigger('change');
+--></script>
+{{ footer }}

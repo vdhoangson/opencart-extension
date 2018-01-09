@@ -1,0 +1,81 @@
+<!--Poll module start--> 
+<div class="widget">
+  <div class="clearfix vote-control" id="poll-box{{ id }}">
+    {% if poll_data %}
+      <h5 class="block">{{ poll_data.question }}</h5>
+      {% if answered or disabled %}
+        {% if reactions %}
+        <div class="front-skills">
+          {% for i in 1..10 %}
+          {% if poll_data['answer_' ~ i] %}
+          <span>  {{ percent[i] }}% - {{ poll_data['answer_' ~ (i)] }}   ({{ vote[i] }} )</span>
+          <div class="progress">
+            <div role="progressbar" class="progress-bar" data-percent="{{ percent[i] }}" style="width:{{ percent[i] }}%;"></div>
+          </div>
+          {% endif %}
+          {% endfor %}
+          <div class="buttons">
+            <div class="pull-left">
+              {{ text_total_votes }} <strong class="badge">{{ total_votes }}</strong>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="text-center">{{ text_no_votes }}</div>
+        {% endif %}
+      {% else %}      
+        <ul class="list-unstyled" id="vote-poll{{ id }}">
+          {% for i in 1..10 %}
+          {% if poll_data['answer_' ~ i] %}
+          {% set answer = poll_data['answer_' ~ i]|trim %}
+          {% if answer is not empty %}
+            <li>
+              <label for="answer{{ i }}">
+              <input type="radio" name="poll_answer" value="{{ i }}" id="answer{{ i }}"> {{ poll_data['answer_' ~ i] }}
+              </label>
+            </li>
+          {% endif %}
+          {% endif %}
+          {% endfor %}
+          <input type="hidden" name="poll_id" value="{{ poll_id }}"/>
+        </ul>
+        <!--vote-poll --> 
+        <div class="buttons">
+          <div class="pull-right">
+            <a id="button-vote{{ id }}" class="btn btn-xs btn-primary"><span>{{ text_vote }}</span></a>
+          </div>
+        </div>
+        <div style="display:none">
+          <script type="text/javascript"><!--
+            $('#button-vote{{ id }}').bind('click', function() {
+                  $('.alert.alert-warning').remove();
+            if($('input[name=\'poll_answer\']').is(':checked')!=false){
+              $.ajax({
+                url: 'index.php?route=extension/penblog/poll/answer',
+                type: 'post',
+                dataType: 'json',
+                  data: $('#vote-poll{{ id }} input[type=\'text\'], #vote-poll{{ id }} input[type=\'radio\']:checked, #vote-poll{{ id }} input[type=\'hidden\']'),
+                beforeSend: function() {
+                  $('#button-vote{{ id }}').attr('disabled', true);
+                },
+                complete: function() {
+                  $('#button-vote{{ id }}').attr('disabled', false);
+                },
+                success: function(data) {
+                  $('#poll-box{{ id }}').load('index.php?route=extension/penblog/poll/result&poll_id={{ poll_id }}');
+                }
+              });
+              }else{
+                $('#vote-poll{{ id }}').after('<div class="alert alert-warning">{{ text_please_select_poll }}</div>');
+              }
+            });
+            //--></script> 
+        </div>
+      {% endif %}
+    {% else %}
+    <div style="text-align: center;">{{ text_no_poll }}</div>
+    {% endif %}
+  </div>
+  <!--clearfix --> 
+</div>
+<!--End poll module -->

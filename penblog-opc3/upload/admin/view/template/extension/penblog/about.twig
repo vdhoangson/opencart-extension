@@ -1,0 +1,99 @@
+{{ header }} {{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <h1>
+        {{ heading_title }}
+      </h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li>
+          <a href="{{ breadcrumb.href }}">
+            {{ breadcrumb.text }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {{ shortcut }}
+    </div>
+  </div>
+  <div class="container-fluid" id="penblog">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-pencil"></i>
+          {{ heading_title }}
+        </h3>
+      </div>
+      <div class="panel-body">
+        <ul class="nav nav-tabs">
+          <li class="active">
+            <a href="#tab-general" data-toggle="tab">
+              {{ tab_info_update }}
+            </a>
+          </li>
+          <li>
+            <a href="#tab-log" data-toggle="tab">
+              {{ tab_log }}
+            </a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab-general">
+            <div class="form-group">
+              <label>Author:
+                <a href="https://vdhoangson.com">vdhoangson</a> -
+                <a href="http://pencms.com">http://pencms.com</a>
+              </label>
+            </div>
+            <div class="form-group">
+              <label>Skype: <strong>vdhoangson</strong>
+              </label>
+            </div>
+            <div class="form-group">
+              <label>Version:</label>
+              <strong>
+                {{ curent_version }}
+              </strong>
+              {% if update %}
+              <p class="alert alert-danger">
+                <i class="fa fa-info-circle"></i>
+                {{ text_need_update}}
+              </p>
+              {% endif %}
+            </div>
+            {% if update %}
+            <div class="form-group">
+              <label>Update:
+                <button type="button" data-toggle="tooltip" title="{{ button_update}}" class="btn btn-danger" onclick="confirm('{{ text_confirm }}') ? window.location='{{ btn_update }}' : false;">
+                  <i class="fa fa-level-up"></i>
+                  {{ button_update }}
+                </button>
+              </label>
+            </div>
+            {% endif %}
+          </div>
+          <div class="tab-pane" id="tab-log">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Date Update</th>
+                  <th>Info</th>
+                  <th>Version</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>20/09/2017</td>
+                  <td>First Release</td>
+                  <td>1.0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="panel-footer">{{ penblog_powered }}</div>
+    </div>
+  </div>
+</div>

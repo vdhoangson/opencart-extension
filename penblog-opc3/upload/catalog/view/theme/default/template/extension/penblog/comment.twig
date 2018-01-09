@@ -1,0 +1,58 @@
+{% if comments %}
+{% for comment in comments %}
+<table class="table table-striped table-bordered">
+  <tr>
+    <td style="width: 50%;"><strong>{{ comment.author }}</strong></td>
+    <td class="text-right">{{ comment.date_added }}</td>
+  </tr>
+  <tr>
+    <td colspan="2"><p>{{ comment.text }}</p>
+      {% if comment.rating %}
+      <div class="rating"> {% for i in 1..5 %}
+        {% if comment.rating < i %} <span class="fa fa-stack"><i class="fa fa-star-o fa-stack-2x"></i></span> {% else %} <span class="fa fa-stack"><i class="fa fa-star fa-stack-2x"></i><i class="fa fa-star-o fa-stack-2x"></i></span>{% endif %}
+        {% endfor %} </div>
+      {% endif %}
+		<button type="button" class="btn btn-primary reply" onclick="reply('{{ comment.comment_id }}');">Reply</button>
+    </td>
+  </tr>
+  {% if comment.childs %}
+  {% for child in comment.childs %}
+  <tr>
+    <td style="width: 50%;"><strong>{{ child.author }} was reply {{ comment.author }}</strong></td>
+    <td class="text-right">{{ child.date_added }}</td>
+  </tr>
+  <tr>
+    <td colspan="2"><p>{{ child.text }}</p>
+      {% if child.rating %}
+      <div class="rating"> {% for i in 1..5 %}
+        {% if child.rating < i %} <span class="fa fa-stack"><i class="fa fa-star-o fa-stack-2x"></i></span> {% else %} <span class="fa fa-stack"><i class="fa fa-star fa-stack-2x"></i><i class="fa fa-star-o fa-stack-2x"></i></span>{% endif %}
+        {% endfor %} </div>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  {% endif %}
+</table>
+{% endfor %}
+<div class="text-right">{{ pagination }}</div>
+{% else %}
+<p>{{ text_no_comments }}</p>
+{% endif %}
+<script type="text/javascript">
+function reply(comment_id){
+  $.ajax({
+    url: 'index.php?route=extension/penblog/article/reply&comment_id='+comment_id,
+    type: 'get',
+    dataType: 'html',
+    beforeSend: function() {
+      $('.modalReply').remove();
+    },
+    complete: function() {
+    },
+    success: function(html) {
+      $('#penblog_article').append(html);
+      $('#reply-'+comment_id).modal('show');
+    }
+  });
+}
+</script>

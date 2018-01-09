@@ -1,0 +1,216 @@
+{{ header }} {{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-testimonial" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+          <i class="fa fa-save"></i>
+          {{ button_save }}
+        </button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
+          <i class="fa fa-reply"></i>
+          {{ button_cancel }}
+        </a>
+      </div>
+      <h1>
+        {{ heading_title }}
+      </h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li>
+          <a href="{{ breadcrumb.href }}">
+            {{ breadcrumb.text }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {{ shortcut }}
+    </div>
+  </div>
+  <div class="container-fluid" id="penblog">
+    {% if error_warning %}
+    <div class="alert alert-danger">
+      <i class="fa fa-exclamation-circle"></i>
+      {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-pencil"></i>
+          {{ heading_title }}
+        </h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-testimonial" class="form-horizontal">
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label class="col-sm-3">
+                  {{ entry_avatar }}
+                </label>
+                <div class="col-sm-9">
+                  <a href="" id="thumb-avatar" data-toggle="image" class="img-thumbnail">
+                    <img src="{{ thumb }}" alt="" title="" data-placeholder="{{ placeholder }}" />
+                  </a>
+                  <input type="hidden" name="avatar" value="{{ avatar }}" id="input-avatar" />
+                </div>
+              </div>
+              <!-- //form-group-->
+              <div class="form-group">
+                <label class="col-sm-3">
+                  {{ entry_customer_name }}
+                </label>
+                <div class="col-sm-9">
+                  <input type="text" name="customer_name" value="{{ customer_name }}" class="form-control" /> {% if error_customer_name %}
+                  <span class="text-danger">
+                    {{ error_customer_name }}
+                  </span>
+                  {% endif %}
+                </div>
+              </div>
+              <!-- //form-group-->
+              <div class="form-group">
+                <label class="col-sm-3">
+                  {{ entry_customer_telephone }}
+                </label>
+                <div class="col-sm-9">
+                  <input type="text" name="customer_telephone" value="{{ customer_telephone }}" class="form-control" /> {% if error_customer_telephone %}
+                  <span class="text-danger">
+                    {{ error_customer_telephone }}
+                  </span>
+                  {% endif %}
+                </div>
+              </div>
+              <!-- //form-group-->
+              <div class="form-group">
+                <label class="col-sm-3">
+                  {{ entry_customer_email }}
+                </label>
+                <div class="col-sm-9">
+                  <input type="text" name="customer_email" value="{{ customer_email }}" class="form-control" /> {% if error_customer_email %}
+                  <span class="text-danger">
+                    {{ error_customer_email }}
+                  </span>
+                  {% endif %}
+                </div>
+              </div>
+              <!-- //form-group-->
+              <div class="form-group">
+                <label class="col-sm-3">
+                  {{ entry_competence }}
+                </label>
+                <div class="col-sm-9">
+                  <input type="text" name="competence" value="{{ competence }}" class="form-control" />
+                </div>
+              </div>
+              <!-- //form-group-->
+              <div class="form-group">
+                <label class="col-sm-3">
+                  {{ entry_company }}
+                </label>
+                <div class="col-sm-9">
+                  <input type="text" name="customer_company" value="{{ customer_company }}" class="form-control" />
+                </div>
+              </div>
+              <!-- //form-group-->
+              <div class="form-group">
+                <label class="col-sm-3">
+                  {{ entry_store }}
+                </label>
+                <div class="col-sm-9">
+                  <select name="store_id" class="form-control">
+                    <option value="0">
+                      {{ text_default }}
+                    </option>
+                    {% for store in stores %}
+                    <option value="{{ store.store_id }}">
+                      {{ store.name }}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <!-- //form-group-->
+              <div class="form-group">
+                <label class="col-sm-3">
+                  {{ entry_status }}
+                </label>
+                <div class="col-sm-9">
+                  <select name="status" class="form-control">
+                    <option value="1" {% if status==1 %}selected="selected" {% endif %}>
+                      {{ text_enabled }}
+                    </option>
+                    <option value="0" {% if status==0 %}selected="selected" {% endif %}>
+                      {{ text_disabled }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <!-- //form-group-->
+              <div class="form-group">
+                <label class="col-sm-3">
+                  {{ entry_read }}
+                </label>
+                <div class="col-sm-9">
+                  <input type="radio" name="read" value="0" {{ read==0 ? 'checked' : '' }} /> {{ text_unread }}
+                  <input type="radio" name="read" value="1" {{ read==1 ? 'checked' : '' }} /> {{ text_read }}
+                </div>
+              </div>
+              <!-- //form-group-->
+            </div>
+            <!--//col -->
+            <div class="col-sm-6">
+              <!-- //form-group-->
+              <div class="form-group">
+                <label class="col-sm-3">
+                  {{ entry_rating }}
+                </label>
+                <div class="col-sm-9">
+                  <b class="rating">
+                    {{ entry_bad }}
+                  </b>&nbsp;
+                  <input type="radio" name="rating" value="1" {% if rating==1 %} checked {% endif %}/> &nbsp;
+                  <input type="radio" name="rating" value="2" {% if rating==2 %} checked {% endif %}/> &nbsp;
+                  <input type="radio" name="rating" value="3" {% if rating==3 %} checked {% endif %} /> &nbsp;
+                  <input type="radio" name="rating" value="4" {% if rating==4 %} checked {% endif %} /> &nbsp;
+                  <input type="radio" name="rating" value="5" {% if rating==5 %} checked {% endif %} /> &nbsp;
+                  <b class="rating">
+                    {{ entry_good }}
+                  </b>
+                  {% if error_rating %}
+                  <span class="text-danger">
+                    {{ error_rating }}
+                  </span>
+                  {% endif %}
+                </div>
+              </div>
+              <!-- //form-group-->
+              <div class="form-group">
+                <label class="col-sm-3">
+                  {{ text_h2_request }}
+                </label>
+                <div class="col-sm-9">
+                  <textarea name="message" style="width:100%; height:200px; resize:none;" rows="10" class="form-control">{{ message }}</textarea>
+                  {% if error_message %}
+                  <br>
+                  <span class="text-danger">
+                    {{ error_message }}
+                  </span>
+                  {% endif %}
+                </div>
+              </div>
+              <!-- //form-group-->
+            </div>
+            <!--//col -->
+          </div>
+          <!--//row -->
+        </form>
+      </div>
+      <div class="panel-footer">{{ penblog_powered }}</div>
+    </div>
+  </div>
+</div>
+{{ footer }}

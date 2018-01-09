@@ -1,0 +1,270 @@
+{{ header }} {{ column_left }}
+<div id="content">
+	<script type="text/javascript" src="view/template/extension/penblog/assets/js/multiselect.js"></script>
+	<div class="page-header">
+		<div class="container-fluid">
+			<h1>
+				{{ heading_title }}
+			</h1>
+			<ul class="breadcrumb">
+				{% for breadcrumb in breadcrumbs %}
+				<li>
+					<a href="{{ breadcrumb.href }}">
+						{{ breadcrumb.text }}
+					</a>
+				</li>
+				{% endfor %}
+			</ul>
+			{{ shortcut }}
+		</div>
+	</div>
+	<div class="container-fluid" id="penblog">
+		{% if error_warning %}
+		<div class="alert alert-danger">
+			<i class="fa fa-exclamation-circle"></i>
+			{{ error_warning }}
+			<button type="button" class="close" data-dismiss="alert">&times;</button>
+		</div>
+		{% endif %}
+		<div class="row">
+			<div class="col-md-3">
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">
+							<i class="fa fa-pencil"></i>
+							{{ text_installed_block }}
+						</h3>
+					</div>
+					<div class="panel-body">
+						{% if installed %}
+						<div class="list-group">
+							{% for module in installed %}
+							<div class="list-group-item {{ module_id == module.module_id ? 'active' : '' }}">
+							<a href="{{ module.edit }}">{{ module.module_id }} - {{ module.name }}</a> <span class="pull-right"><a href="{{ module.delete }}"><i class="fa fa-trash text-danger"></i></a></span>
+							</div>
+							{% endfor %}
+						</div>
+						{% else %}
+							{{ text_empty }}
+						{% endif %}
+					</div>
+					<div class="panel-footer">{{ penblog_powered }}</div>
+				</div>
+			</div>
+			<div class="col-md-9">
+				<form action="{{ action }}" method="POST" enctype="multipart/form-data" id="form-article-set" class="form-horizontal">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">
+								<i class="fa fa-pencil"></i>
+								{{ text_form }}
+							</h3>
+							<div class="pull-right">
+								{% if (module_id > 0) or block is not empty %}
+								<a href="{{ add_new_module }}" data-toggle="tooltip" title="{{ button_add_module }}" class="btn btn-success btn-xs">
+									<i class="fa fa-plus"></i>
+									{{ button_add_module }}
+								</a>
+								<button type="submit" form="form-article-set" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary btn-xs">
+									<i class="fa fa-save"></i>
+									{{ button_save }}
+								</button>
+								{% endif %}
+								<a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default btn-xs">
+									<i class="fa fa-reply"></i>
+									{{ button_cancel }}
+								</a>
+							</div>
+						</div>
+						<div class="panel-body">
+							<div class="row">
+								<div class="{{ (module_id > 0) ? 'col-sm-12' : 'col-sm-6' }}">
+									<div class="form-group required">
+										<label class="col-sm-2 control-label" for="input-name">
+											{{ entry_name }}
+										</label>
+										<div class="col-sm-10">
+											<input type="text" name="name" value="{{ name }}" placeholder="{{ entry_name }}" id="input-name" class="form-control"/>
+											{% if error_name %}
+											<div class="text-danger">
+												{{ error_name }}
+											</div>
+											{% endif %}
+										</div>
+									</div>
+									<div class="form-group required">
+										<label class="col-sm-2 col-md-2 control-label">{{ entry_title }}</label>
+										<div class="col-md-10 col-sm-10">
+											{% for language in languages %}
+												<div class="input-group">
+													<span class="input-group-addon" id="language-{{ language.language_id }}">
+														<img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}"
+														/> {{ language.name}}
+													</span>
+													<input type="text" name="title[{{ language.language_id }}]" value="{{ title[language.language_id] ? title[language.language_id] : ''}}" placeholder="{{ entry_title }}" id="input-title{{ language.language_id }}" class="form-control" aria-describedby="language-{{ language.language_id }}" />
+												</div>
+												{% if error_title.language.language_id %}
+												<div class="text-danger">
+													{{ error_title.language.language_id }}
+												</div>
+												{% endif %}
+											{% endfor %}
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="col-sm-2 control-label" for="input-status">
+											{{ entry_status }}
+										</label>
+										<div class="btn-group col-md-10" data-toggle="buttons">
+											<label class="btn {{ status == 1?'btn-primary active': 'btn-default' }}">
+												<input type="radio" name="status" value="1" {{ status == 1 ? 'checked': '' }} >
+												{{ text_on }}
+											</label>
+											<label class="btn {{ status == 0 ? 'btn-danger active': 'btn-default' }}">
+												<input type="radio" name="status" value="0" {{ status == 0 ? 'checked': '' }}>
+												{{ text_off }}
+											</label>
+										</div>
+									</div>
+								</div>
+								{% if module_id == 0 %}
+								<div class="col-md-6">
+									<select class="form-control">
+										<option value="">{{ text_select }}</option>
+										{% for element in elements %}
+										<option value="{{ element.href }}" onclick="window.location = this.value;" {{ element.key == block ? 'selected': '' }}>
+											{{ element.title }}
+										</option>
+										{% endfor %}
+									</select>
+								</div>
+								{% endif %}
+							</div>
+							<hr/>
+							<div class="row">
+								<div class="col-md-12">
+									{{ block_content }}
+								</div>
+							</div>
+						</div>
+						<div class="panel-footer">{{ penblog_powered }}</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	jQuery(document).ready(function ($) {
+		$('.multiselect_category').multiselect({
+			search: {
+				left: '<input type="text" class="form-control" placeholder="Search..." />',
+				right: '<input type="text" class="form-control" placeholder="Search..." />',
+			}
+		});
+	});
+
+	jQuery(document).ready(function ($) {
+		$('.multiselect_article').multiselect({
+			search: {
+				left: '<input type="text" class="form-control" placeholder="Search..." />',
+				right: '<input type="text" class="form-control" placeholder="Search..." />',
+			}
+		});
+	});
+</script>
+<script type="text/javascript">
+	$(document).ready(function () {
+		$("#input-theme").trigger('change');
+		$("#input-order").trigger('change');
+	});
+
+	$("#input-order").change(function () {
+		var value = $('#input-order').val();
+
+		switch (value) {
+			//Default
+			case 'default':
+				$('.tab_article').removeClass('hidden');
+				$('#multiselect_to_article').prop('disabled', false);
+				break;
+				//Latest
+			case 'latest':
+				$('.tab_article').addClass('hidden');
+				$('#multiselect_to_article').prop('disabled', true);
+				break;
+				//Most view
+			case 'most_view':
+				$('.tab_article').addClass('hidden');
+				$('#multiselect_to_article').prop('disabled', true);
+				break;
+		}
+	});
+
+	$("#input-theme").change(function () {
+		var val = $('#input-theme').val();
+
+		switch (val) {
+			//Default
+			case 'default':
+				$('.tab_article').addClass('hidden');
+				$('.tab_category').addClass('hidden');
+				$('.slider').addClass('hidden');
+				$('#multiselect_to_article').prop('disabled', false);
+				$('#multiselect_to_category').prop('disabled', true);
+				$('.default').removeClass('hidden');
+				break;
+				// Tab article
+			case 'tab_article':
+				$('.tab_category').addClass('hidden');
+				$('.default').addClass('hidden');
+				$('.slider').addClass('hidden');
+				$('#multiselect_to_category').prop('disabled', true);
+				$('#multiselect_to_article').prop('disabled', false);
+				$('.tab_article').removeClass('hidden');
+				break;
+				// Tab category
+			case 'tab_category':
+				$('.default').addClass('hidden');
+				$('.tab_article').addClass('hidden');
+				$('.slider').addClass('hidden');
+				$('#multiselect_to_article').prop('disabled', true);
+				$('#multiselect_to_category').prop('disabled', false);
+				$('.tab_category').removeClass('hidden');
+				break;
+				// Carousel
+			case 'article_carousel':
+				$('.default').addClass('hidden');
+				$('.tab_category').addClass('hidden');
+				$('.slider').addClass('hidden');
+				$('#multiselect_to_category').prop('disabled', true);
+				$('#multiselect_to_article').prop('disabled', false);
+				$('.article_carousel').removeClass('hidden');
+				break;
+				//slide show
+			case 'slider':
+				$('.default').addClass('hidden');
+				$('.tab_article').addClass('hidden');
+				$('.tab_category').addClass('hidden');
+				$('#multiselect_to_category').prop('disabled', true);
+				$('#multiselect_to_article').prop('disabled', false);
+				$('.slider').removeClass('hidden');
+				break;
+				//category
+			case 'category':
+				$('.default').addClass('hidden');
+				$('.tab_article').addClass('hidden');
+				$('.tab_category').addClass('hidden');
+				$('#multiselect_to_category').prop('disabled', false);
+				$('#multiselect_to_article').prop('disabled', true);
+				$('.category').removeClass('hidden');
+				break;
+		}
+	});
+</script>
+<script type="text/javascript">
+	$('#language a:first').tab('show');
+</script>
+</div>
+{{ footer }}

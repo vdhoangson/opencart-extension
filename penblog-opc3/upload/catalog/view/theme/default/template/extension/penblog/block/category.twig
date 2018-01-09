@@ -1,0 +1,18 @@
+<div class="list-group">
+	{% for category in categories %}
+	{% if category.children %}
+		<a href="#cat{{ category.category_id }}" data-toggle="collapse" class="list-group-item">{{ category.name }} <i class="fa fa-sort-desc pull-right"></i></a>
+		<div id="cat{{ category.category_id }}" class="panel-collapse collapse">
+			{% for child in category.children %}
+				{% if child.category_id == child_id %}
+			  	<a href="{{ child.href }}" class="list-group-item active">&nbsp;&nbsp;&nbsp;- {{ child.name }}</a>
+			  	{% else %}
+			  	<a href="{{ child.href }}" class="list-group-item">&nbsp;&nbsp;&nbsp;- {{ child.name }}</a>
+			  	{% endif %}
+			{% endfor %}
+		</div>
+  	{% else %}
+  		<a href="{{ category.href }}"class="list-group-item">{{ category.name }}</a>
+  	{% endif %}
+  {% endfor %}
+</div>

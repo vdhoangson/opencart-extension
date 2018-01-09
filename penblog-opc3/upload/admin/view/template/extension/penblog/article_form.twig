@@ -1,0 +1,842 @@
+{{ header }} {{ column_left }}
+<div id="content">
+	<div class="page-header">
+		<div class="container-fluid">
+			<h1>{{ heading_title }}</h1>
+			<ul class="breadcrumb">
+				{% for breadcrumb in breadcrumbs %}
+				<li>
+					<a href="{{ breadcrumb.href }}">
+						{{ breadcrumb.text }}
+					</a>
+				</li>
+				{% endfor %}
+			</ul>
+			<div class="pull-right">
+				<button type="submit" form="form-article" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+					<i class="fa fa-save"></i>
+					{{ button_save }}
+				</button>
+				<a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
+					<i class="fa fa-reply"></i>
+					{{ button_cancel }}
+				</a>
+			</div>
+			{{ shortcut }}
+		</div>
+	</div>
+	<div class="container-fluid" id="penblog">
+		{% if error_warning %}
+		<div class="alert alert-danger">
+			<i class="fa fa-exclamation-circle"></i>
+			{{ error_warning }}
+			<button type="button" class="close" data-dismiss="alert">&times;</button>
+		</div>
+		{% endif %}
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">
+					<i class="fa fa-pencil"></i>
+					{{ text_form }}
+				</h3>
+			</div>
+			<div class="panel-body">
+				<form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-article" class="form-horizontal">
+					<ul class="nav nav-tabs">
+						<li class="active">
+							<a href="#tab-general" data-toggle="tab">
+								{{ tab_general }}
+							</a>
+						</li>
+						<li>
+							<a href="#tab-data" data-toggle="tab">
+								{{ tab_data }}
+							</a>
+						</li>
+						<li>
+							<a href="#tab-image" data-toggle="tab">
+								{{ tab_image }}
+							</a>
+						</li>
+						<li>
+							<a href="#tab-seo" data-toggle="tab">
+								{{ tab_seo }}
+							</a>
+						</li>
+						<li>
+							<a href="#tab-design" data-toggle="tab">
+								{{ tab_design }} & {{ entry_store }}
+							</a>
+						</li>
+					</ul>
+					<div class="tab-content">
+						<div class="tab-pane active" id="tab-general">
+							<ul class="nav nav-tabs" id="language">
+								{% for language in languages %}
+								<li>
+									<a href="#language{{ language.language_id }}" data-toggle="tab">
+										<img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /> {{ language.name }}
+									</a>
+								</li>
+								{% endfor %}
+							</ul>
+							<div class="tab-content">
+								{% for language in languages %}
+								<div class="tab-pane" id="language{{ language.language_id }}">
+									<div class="col-sm-8">
+										<div class="form-group required">
+											<div class="col-sm-12">
+												<label class="control-label" for="input-name{{ language.language_id }}">
+													{{ entry_name }}
+												</label>
+												<input type="text" name="article_description[{{ language.language_id }}][name]" value="{{ article_description[language.language_id] ? article_description[language.language_id].name : '' }}"
+												    placeholder="{{ entry_name }}" id="input-name{{ language.language_id }}" class="form-control" /> {% if error_name[language.language_id] %}
+												<div class="text-danger">
+													{{ error_name[language.language_id] }}
+												</div>
+												{% endif %}
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="col-sm-12">
+												<label class="control-label" for="input-meta-keyword{{ language.language_id }}">
+													{{ entry_short_description }}
+												</label>
+												<textarea name="article_description[{{ language.language_id }}][short_description]" rows="5" placeholder="{{ entry_short_description }}" id="input-short-description{{ language.language_id }}" class="form-control" data-toggle="summernote">{{ article_description[language.language_id] ? article_description[language.language_id].short_description : '' }}</textarea>
+											</div>
+										</div>
+										<div class="form-group required">
+											<div class="col-sm-12">
+												<label class="control-label" for="input-description{{ language.language_id }}">{{ entry_description }}</label>
+												<textarea name="article_description[{{ language.language_id }}][description]" placeholder="{{ entry_description }}"id="input-description{{ language.language_id }}" class="summernote">{{ article_description[language.language_id] ? article_description[language.language_id].description : '' }}</textarea>
+												{% if error_description[language.language_id] %}
+												<div class="text-danger">
+													{{ error_description[language.language_id] }}
+												</div>
+												{% endif %}
+											</div>
+										</div>
+									</div>
+									<div class="col-sm-4">
+										<div class="form-group">
+											<div class="col-sm-12">
+												<label class="control-label" for="input-meta-description{{ language.language_id }}">
+													{{ entry_meta_description }}
+												</label>
+												<textarea name="article_description[{{ language.language_id }}][meta_description]" rows="5" placeholder="{{ entry_meta_description }}"
+												    id="input-meta-description{{ language.language_id }}" class="form-control">{{ article_description.language.language_id ? article_description.language.language_id.meta_description : '' }}</textarea>
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="col-sm-12">
+												<label class="control-label" for="input-meta-keyword{{ language.language_id }}">
+													{{ entry_meta_keyword }}
+												</label>
+												<textarea name="article_description[{{ language.language_id }}][meta_keyword]" rows="5" placeholder="{{ entry_meta_keyword }}"
+												    id="input-meta-keyword{{ language.language_id }}" class="form-control">{{ article_description[language.language_id] ? article_description[language.language_id].meta_keyword : '' }}</textarea>
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="col-sm-12">
+												<label class="control-label" for="input-tag{{ language.language_id }}">
+													{{ entry_tag }}
+												</label>
+												<input type="text" name="article_description[{{ language.language_id }}][tag]" value="{{ article_description[language.language_id] ? article_description[language.language_id].tag : '' }}"
+												    placeholder="{{ entry_tag }}" id="input-tag{{ language.language_id }}" class="form-control" />
+											</div>
+										</div>
+									</div>
+								</div>
+								{% endfor %}
+							</div>
+						</div>
+						<div class="tab-pane" id="tab-data">
+							<div class="form-group">
+								<div class="col-sm-4">
+									<label class="control-label" for="input-date-add">
+										{{ entry_date_added }}
+									</label>
+									<div class="input-group date">
+										<input type="text" name="date_added" value="{{ date_added }}" placeholder="{{ entry_date_added }}" class="form-control" data-date-format="YYYY-MM-DD">
+										<span class="input-group-btn">
+											<button class="btn btn-default" type="button">
+												<i class="fa fa-calendar"></i>
+											</button>
+										</span>
+									</div>
+								</div>
+								<div class="col-sm-4">
+									<label class="control-label" for="input-date-modified">
+										{{ entry_date_modified }}
+									</label>
+									<div class="input-group date">
+										<input type="text" name="date_modified" value="{{ date_modified }}" placeholder="{{ entry_date_modified }}" class="form-control"
+										    data-date-format="YYYY-MM-DD">
+										<span class="input-group-btn">
+											<button class="btn btn-default" type="button">
+												<i class="fa fa-calendar"></i>
+											</button>
+										</span>
+									</div>
+								</div>
+								<div class="col-sm-4">
+									<label class="control-label" for="input-date-public">
+										{{ entry_date_public }}
+									</label>
+									<div class="input-group date">
+										<input type="text" name="date_public" value="{{ date_public }}" placeholder="{{ entry_date_public }}" class="form-control"
+										    data-date-format="YYYY-MM-DD">
+										<span class="input-group-btn">
+											<button class="btn btn-default" type="button">
+												<i class="fa fa-calendar"></i>
+											</button>
+										</span>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-md-6">
+									<!-- Author -->
+									<div class="form-group">
+										<label class="col-sm-4 control-label" for="input-author">
+											{{ entry_author }}
+										</label>
+										<div class="col-sm-8">
+											<select name="article_author" id="input-author" class="form-control">
+												{% for author in authors %} {% if author.user_id == article_author%}
+												<option value="{{ author.user_id }}" selected="selected">
+													{{ author.username }}
+												</option>
+												{% else %}
+												<option value="{{ author.user_id }}">
+													{{ author.username }}
+												</option>
+												{% endif %} {% endfor %}
+											</select>
+										</div>
+									</div>
+									<!-- Sortorder -->
+									<div class="form-group">
+										<label class="col-sm-4 control-label" for="input-sort-order">
+											{{ entry_sort_order }}
+										</label>
+										<div class="col-sm-8">
+											<input type="text" name="sort_order" value="{{ sort_order }}" placeholder="{{ entry_sort_order }}" id="input-sort-order"
+											    class="form-control" />
+										</div>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="control-label col-md-4">
+											{{ entry_login_to_view }}
+										</label>
+										<div class="col-md-8">
+											<div class="btn-group" data-toggle="buttons">
+												<label class="btn {{ login_to_view == 1 ? 'btn-primary active':'btn-default' }}">
+													<input type="radio" name="login_to_view" value="1" {{ login_to_view==1 ? 'checked': '' }}> {{ text_on }}
+												</label>
+												<label class="btn {{ login_to_view == 0 ? 'btn-primary active':'btn-default' }}">
+													<input type="radio" name="login_to_view" value="0" {{ login_to_view==0 ? 'checked': '' }}> {{ text_off }}
+												</label>
+											</div>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-md-4">
+											{{ entry_allow_comment }}
+										</label>
+										<div class="col-md-8">
+											<div class="btn-group" data-toggle="buttons">
+												<label class="btn {{ allow_comment == 1 ? 'btn-primary active':'btn-default' }}">
+													<input type="radio" name="allow_comment" value="1" {{ allow_comment==1 ? 'checked': '' }}> {{ text_on }}
+												</label>
+												<label class="btn {{ allow_comment == 0 ? 'btn-primary active':'btn-default' }}">
+													<input type="radio" name="allow_comment" value="0" {{ allow_comment==0 ? 'checked': '' }}> {{ text_off }}
+												</label>
+											</div>
+										</div>
+									</div>
+									<div class="form-group">
+										<label class="control-label col-md-4">
+											{{ entry_status }}
+										</label>
+										<div class="col-md-8">
+											<div class="btn-group" data-toggle="buttons">
+												<label class="btn {{ status == 1?'btn-primary active':'btn-default' }}">
+													<input type="radio" name="status" value="1" {{ status==1 ? 'checked': '' }}> {{ text_on }}
+												</label>
+												<label class="btn {{ status == 0?'btn-primary active':'btn-default' }}">
+													<input type="radio" name="status" value="0" {{ status==0 ? 'checked': '' }}> {{ text_off }}
+												</label>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-sm-6">
+									<label class="control-label" for="input-category">
+										{{ entry_category }}
+									</label>
+									<input type="text" name="category" value="" placeholder="{{ entry_category }}" id="input-category" class="form-control" />
+									<div id="article-category" class="well well-sm" style="height: 150px; overflow: auto;">
+										{% for article_category in article_categories %}
+										<div id="article-category{{ article_category.category_id }}">
+											<i class="fa fa-minus-circle"></i>
+											{{ article_category.name }}
+											<input type="hidden" name="article_category[]" value="{{ article_category.category_id }}" />
+										</div>
+										{% endfor %}
+									</div>
+								</div>
+								<div class="col-sm-6">
+									<label class="control-label" for="input-related">
+										{{ entry_related }}
+									</label>
+									<input type="text" name="related" value="" placeholder="{{ entry_related }}" id="input-related" class="form-control" />
+									<div id="article-related" class="well well-sm" style="height: 150px; overflow: auto;">
+										{% for article_related in article_relateds %}
+										<div id="article-related{{ article_related.article_id }}">
+											<i class="fa fa-minus-circle"></i>
+											{{ article_related.name }}
+											<input type="hidden" name="article_related[]" value="{{ article_related.article_id }}" />
+										</div>
+										{% endfor %}
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<!-- Product -->
+								<div class="col-md-6">
+									<label class="control-label" for="input-related">
+										{{ entry_product }}
+									</label>
+									<input type="text" name="product" value="" placeholder="{{ entry_product }}" id="product" class="form-control" />
+									<div id="article-product" class="well well-sm" style="height: 150px; overflow: auto;">
+										{% for product in products %}
+										<div id="article-product{{ product.product_id }}">
+											<i class="fa fa-minus-circle"></i>
+											{{ product.name }}
+											<input type="hidden" name="article_product[]" value="{{ product.product_id }}" />
+										</div>
+										{% endfor %}
+									</div>
+								</div>
+								<!-- Download -->
+								<div class="col-md-6">
+									<label class="control-label" for="input-related">
+										{{ entry_download }}
+									</label>
+									<input type="text" name="download" value="" placeholder="{{ entry_download }}" id="download" class="form-control" />
+									<div id="article-download" class="well well-sm" style="height: 150px; overflow: auto;">
+										{% for download in downloads %}
+										<div id="article-download{{ download.download_id }}">
+											<i class="fa fa-minus-circle"></i>
+											{{ download.name }}
+											<input type="hidden" name="article_download[]" value="{{ download.download_id }}" />
+										</div>
+										{% endfor %}
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="col-md-6">
+									<label class="control-label" for="input-related">
+										{{ entry_poll }}
+									</label>
+									<select name="poll_id" class="form-control">
+										<option value="">{{ text_none }}</option>
+										{% for poll in polls %}
+										<option value="{{ poll.poll_id }}" {{ poll_id == poll.poll_id ? 'selected' : '' }}>
+											{{ poll.question }}
+										</option>
+										{% endfor %}
+									</select>
+								</div>
+							</div>
+						</div>
+						<!-- Tab Image -->
+						<div class="tab-pane" id="tab-image">
+							<div class="form-group">
+								<div class="col-sm-6">
+									<div class="form-group">
+										<label class="col-sm-4 control-label" for="image-type">
+											{{ entry_image_type }}
+										</label>
+										<div class="col-sm-8">
+											<select name="image[type]" id="image-type" class="form-control">
+												{% for value in image_types %} {% if value == image.type %}
+												<option value="{{ value }}" selected>
+													{{ value }}
+												</option>
+												{% else %}
+												<option value="{{ value }}">
+													{{ value }}
+												</option>
+												{% endif %} {% endfor %}
+
+											</select>
+										</div>
+									</div>
+									<label class="col-sm-4 control-label" for="input-featured-image">
+										{{ entry_image }}
+									</label>
+									<div class="col-sm-8">
+										<a href="" id="thumb-image" data-toggle="image" class="img-thumbnail image_featured">
+											<img src="{{ thumb }}" data-placeholder="{{ placeholder }}" />
+										</a>
+										<input type="hidden" name="image[image]" value="{{ image.image }}" id="input-featured-image" />
+										<input type="text" name="image[youtube]" value="{{ image.youtube }}" class="form-control youtube_featured hidden" data-placeholder="Youtube"
+										/>
+									</div>
+								</div>
+								<div class="col-sm-6">
+									<div class="form-group">
+										<label class="col-sm-4 control-label" for="image-main-type">
+											{{ entry_image_type }}
+										</label>
+										<div class="col-sm-8">
+											<select name="main_image[type]" id="main-type" class="form-control">
+												{% for value in image_types %} {% if value == main_image.type%}
+												<option value="{{ value }}" selected>
+													{{ value }}
+												</option>
+												{% else %}
+												<option value="{{ value }}">
+													{{ value }}
+												</option>
+												{% endif %} {% endfor %}
+
+											</select>
+										</div>
+									</div>
+									<label class="col-sm-4 control-label" for="input-main-image">
+										{{ entry_main_image }}
+									</label>
+									<div class="col-sm-8">
+										<a href="" id="thumb-main-image" data-toggle="image" class="img-thumbnail main_image">
+											<img src="{{ thumb_main_image }}" alt="" title="" data-placeholder="{{ placeholder }}" />
+										</a>
+										<input type="hidden" name="main_image[image]" value="{{ main_image.image }}" id="input-main-image" />
+										<input type="text" name="main_image[youtube]" value="{{ main_image.youtube }}" class="form-control main_youtube hidden" data-placeholder="Youtube"
+										/>
+									</div>
+								</div>
+							</div>
+							<div class="table-responsive">
+								<table id="images" class="table table-striped table-bordered table-hover">
+									<thead>
+										<tr>
+											<td class="text-left">
+												{{ entry_image }}
+											</td>
+											<td class="text-right">
+												{{ entry_sort_order }}
+											</td>
+											<td></td>
+										</tr>
+									</thead>
+									<tbody>
+										{% set image_row = 0 %} {% for article_image in article_images %}
+										<tr id="image-row{{ image_row }}">
+											<td class="text-left">
+												<a href="" id="thumb-image{{ image_row }}" data-toggle="image" class="img-thumbnail">
+													<img src="{{ article_image.thumb }}" alt="" title="" data-placeholder="{{ placeholder }}" />
+												</a>
+												<input type="hidden" name="article_image[{{ image_row }}][image]" value="{{ article_image.image }}" id="input-image{{ image_row }}"
+												/>
+											</td>
+											<td class="text-right">
+												<input type="text" name="article_image[{{ image_row }}][sort_order]" value="{{ article_image.sort_order }}" placeholder="{{ entry_sort_order }}"
+												    class="form-control" />
+											</td>
+											<td class="text-left">
+												<button type="button" onclick="$('#image-row{{ image_row }}').remove();" data-toggle="tooltip" title="{{ button_remove }}"
+												    class="btn btn-danger">
+													<i class="fa fa-minus-circle"></i>
+												</button>
+											</td>
+										</tr>
+										{% set image_row = image_row + 1 %} {% endfor %}
+									</tbody>
+									<tfoot>
+										<tr>
+											<td colspan="2"></td>
+											<td class="text-left">
+												<button type="button" onclick="addImage();" data-toggle="tooltip" title="{{ button_image_add }}" class="btn btn-primary">
+													<i class="fa fa-plus-circle"></i>
+												</button>
+											</td>
+										</tr>
+									</tfoot>
+								</table>
+							</div>
+						</div>
+						<!-- Tab Seo -->
+						<div class="tab-pane" id="tab-seo">
+							<div class="alert alert-info"><i class="fa fa-info-circle"></i> {{ text_keyword }}</div>            
+							<div class="table-responsive">
+								<table class="table table-bordered table-hover">
+								<thead>
+									<tr>
+									<td class="text-left">{{ entry_store }}</td>
+									<td class="text-left">{{ entry_keyword }}</td>
+									</tr>
+								</thead>
+								<tbody>
+								{% for store in stores %}
+								<tr>
+									<td class="text-left">{{ store.name }}</td>
+									<td class="text-left">{% for language in languages %}
+									<div class="input-group"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /></span>
+										<input type="text" name="article_seo_url[{{ store.store_id }}][{{ language.language_id }}]" value="{% if article_seo_url[store.store_id][language.language_id] %}{{ article_seo_url[store.store_id][language.language_id] }}{% endif %}" placeholder="{{ entry_keyword }}" class="form-control" />
+									</div>
+									{% if error_keyword[store.store_id][language.language_id] %}
+									<div class="text-danger">{{ error_keyword[store.store_id][language.language_id] }}</div>
+									{% endif %} 
+									{% endfor %}</td>
+								</tr>
+								{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- Tab design -->
+						<div class="tab-pane" id="tab-design">
+						<div class="form-group">
+							<label class="col-sm-2 control-label">{{ entry_store }}</label>
+							<div class="col-sm-10">
+							<div class="well well-sm" style="height: 150px; overflow: auto;">
+								{% for store in stores %}
+								<div class="checkbox">
+								<label>
+									{% if store.store_id in article_store %}
+									<input type="checkbox" name="article_store[]" value="{{ store.store_id }}" checked="checked" />
+									{{ store.name }}
+									{% else %}
+									<input type="checkbox" name="article_store[]" value="{{ store.store_id }}" />
+									{{ store.name }}
+									{% endif %}
+								</label>
+								</div>
+								{% endfor %}
+							</div>
+							</div>
+						</div>
+						<div class="table-responsive">
+							<table class="table table-bordered table-hover">
+							<thead>
+								<tr>
+								<td class="text-left">{{ entry_store }}</td>
+								<td class="text-left">{{ entry_layout }}</td>
+								</tr>
+							</thead>
+							<tbody>
+
+								{% for store in stores %}
+								<tr>
+								<td class="text-left">{{ store.name }}</td>
+								<td class="text-left"><select name="category_layout[{{ store.store_id }}]" class="form-control">
+									<option value=""></option>
+									{% for layout in layouts %}
+									{% if category_layout[store.store_id] and category_layout[store.store_id] == layout.layout_id %}
+									<option value="{{ layout.layout_id }}" selected="selected">{{ layout.name }}</option>
+									{% else %}
+									<option value="{{ layout.layout_id }}">{{ layout.name }}</option>
+									{% endif %}
+									{% endfor %}
+									</select></td>
+								</tr>
+								{% endfor %}
+							</tbody>
+							</table>
+						</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="panel-footer">{{ penblog_powered }}</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="view/javascript/summernote/summernote.js"></script>
+	<link href="view/javascript/summernote/summernote.css" rel="stylesheet" />
+	<script type="text/javascript" src="view/javascript/summernote/summernote-image-attributes.js"></script> 
+	<script type="text/javascript" src="view/javascript/summernote/opencart.js"></script> 
+	<script type="text/javascript">
+		$('.summernote').each(function(){
+			$(this).summernote({
+				height: 300
+			});
+		});
+	</script>
+	<script type="text/javascript">
+		function image_upload(field, thumb) {
+			$('#dialog').remove();
+
+			$('#content').prepend(
+				'<div id="dialog" style="padding: 3px 0px 0px 0px;"><iframe src="index.php?route=common/filemanager&user_token={{ user_token }}&field=' +
+				encodeURIComponent(field) +
+				'" style="padding:0; margin: 0; display: block; width: 100%; height: 100%;" frameborder="no" scrolling="auto"></iframe></div>'
+			);
+
+			$('#dialog').dialog({
+				name: '{{ text_image_manager }}',
+				close: function (event, ui) {
+					if ($('#' + field).attr('value')) {
+						$.ajax({
+							url: 'index.php?route=common/filemanager/image&user_token={{ user_token }}&image=' +
+								encodeURIComponent($('#' + field).attr('value')),
+							dataType: 'text',
+							success: function (text) {
+								$('#' + thumb).replaceWith('<img src="' + text + '" alt="" id="' + thumb + '" />');
+							}
+						});
+					}
+				},
+				bgiframe: false,
+				width: 800,
+				height: 400,
+				resizable: false,
+				modal: false
+			});
+		};
+	</script>
+	<script type="text/javascript">
+		// Related
+		$('input[name=\'related\']').autocomplete({
+			'source': function (request, response) {
+				$.ajax({
+					url: 'index.php?route=extension/penblog/article/autocomplete&user_token={{ user_token }}&filter_name=' +
+						encodeURIComponent(request),
+					dataType: 'json',
+					success: function (json) {
+						response($.map(json, function (item) {
+							return {
+								label: item['name'],
+								value: item['article_id']
+							}
+						}));
+					}
+				});
+			},
+			'select': function (item) {
+				$('input[name=\'related\']').val('');
+
+				$('#article-related' + item['value']).remove();
+
+				$('#article-related').append('<div id="article-related' + item['value'] +
+					'"><i class="fa fa-minus-circle"></i> ' + item['label'] +
+					'<input type="hidden" name="article_related[]" value="' + item['value'] + '" /></div>');
+			}
+		});
+
+		$('#article-related').delegate('.fa-minus-circle', 'click', function () {
+			$(this).parent().remove();
+		});
+
+		// Category
+		$('input[name=\'category\']').autocomplete({
+			'source': function (request, response) {
+				$.ajax({
+					url: 'index.php?route=extension/penblog/category/autocomplete&user_token={{ user_token }}&filter_name=' +
+						encodeURIComponent(request),
+					dataType: 'json',
+					success: function (json) {
+						response($.map(json, function (item) {
+							return {
+								label: item['name'],
+								value: item['category_id']
+							}
+						}));
+					}
+				});
+			},
+			'select': function (item) {
+				$('input[name=\'category\']').val('');
+
+				$('#article-category' + item['value']).remove();
+
+				$('#article-category').append('<div id="article-category' + item['value'] +
+					'"><i class="fa fa-minus-circle"></i> ' + item['label'] +
+					'<input type="hidden" name="article_category[]" value="' + item['value'] + '" /></div>');
+			}
+		});
+
+		$('#article-category').delegate('.fa-minus-circle', 'click', function () {
+			$(this).parent().remove();
+		});
+
+
+		$('#article-related div img').delegate('.fa-minus-circle', 'click', function () {
+			$(this).parent().remove();
+		});
+
+		// Download
+		$('input[name=\'download\']').autocomplete({
+			'source': function (request, response) {
+				$.ajax({
+					url: 'index.php?route=extension/penblog/download/autocomplete&user_token={{ user_token }}&filter_name=' +
+						encodeURIComponent(request),
+					dataType: 'json',
+					success: function (json) {
+						response($.map(json, function (item) {
+							return {
+								label: item['name'],
+								value: item['download_id']
+							}
+						}));
+					}
+				});
+			},
+			'select': function (item) {
+				$('input[name=\'download\']').val('');
+
+				$('#article-download' + item['value']).remove();
+
+				$('#article-download').append('<div id="article-download' + item['value'] +
+					'"><i class="fa fa-minus-circle"></i> ' + item['label'] +
+					'<input type="hidden" name="article_download[]" value="' + item['value'] + '" /></div>');
+			}
+		});
+
+		$('#article-download').delegate('.fa-minus-circle', 'click', function () {
+			$(this).parent().remove();
+		});
+
+		// Product
+		$('input[name=\'product\']').autocomplete({
+			'source': function (request, response) {
+				$.ajax({
+					url: 'index.php?route=catalog/product/autocomplete&user_token={{ user_token }}&filter_name=' +
+						encodeURIComponent(request),
+					dataType: 'json',
+					success: function (json) {
+						response($.map(json, function (item) {
+							return {
+								label: item['name'],
+								value: item['product_id']
+							}
+						}));
+					}
+				});
+			},
+			'select': function (item) {
+				$('input[name=\'product\']').val('');
+
+				$('#article-product' + item['value']).remove();
+
+				$('#article-product').append('<div id="article-product' + item['value'] +
+					'"><i class="fa fa-minus-circle"></i> ' + item['label'] +
+					'<input type="hidden" name="article_product[]" value="' + item['value'] + '" /></div>');
+			}
+		});
+
+		$('#article-product').delegate('.fa-minus-circle', 'click', function () {
+			$(this).parent().remove();
+		});
+
+		// Poll
+		$('input[name=\'poll\']').autocomplete({
+			'source': function (request, response) {
+				$.ajax({
+					url: 'index.php?route=extension/penblog/poll/autocomplete&user_token={{ user_token }}&filter_name=' +
+						encodeURIComponent(request),
+					dataType: 'json',
+					success: function (json) {
+						response($.map(json, function (item) {
+							return {
+								label: item['question'],
+								value: item['poll_id']
+							}
+						}));
+					}
+				});
+			},
+			'select': function (item) {
+				$('input[name=\'poll\']').val('');
+
+				$('#article-poll' + item['value']).remove();
+
+				$('#article-poll').append('<div id="article-poll' + item['value'] + '"><i class="fa fa-minus-circle"></i> ' +
+					item['label'] + '<input type="hidden" name="article_poll[]" value="' + item['value'] + '" /></div>');
+			}
+		});
+
+		$('#article-poll').delegate('.fa-minus-circle', 'click', function () {
+			$(this).parent().remove();
+		});
+	</script>
+	<script type="text/javascript">
+		var image_row = {{ image_row }};
+
+		function addImage() {
+			html = '<tr id="image-row' + image_row + '">';
+			html += '  <td class="text-left"><a href="" id="thumb-image' + image_row +
+				'"data-toggle="image" class="img-thumbnail"><img src="{{ placeholder }}" alt="" title="" data-placeholder="{{ placeholder }}" /><input type="hidden" name="article_image[' +
+				image_row + '][image]" value="" id="input-image' + image_row + '" /></td>';
+			html += '  <td class="text-right"><input type="text" name="article_image[' + image_row +
+				'][sort_order]" value="" placeholder="{{ entry_sort_order }}" class="form-control" /></td>';
+			html += '  <td class="text-left"><button type="button" onclick="$(\'#image-row' + image_row +
+				'\').remove();" data-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>';
+			html += '</tr>';
+
+			$('#images tbody').append(html);
+
+			image_row++;
+		}
+	</script>
+	<script type="text/javascript">
+		<!--
+		$('.date').datetimepicker({
+			pickTime: false
+		});
+
+		$('.time').datetimepicker({
+			pickDate: false
+		});
+
+		$('.datetime').datetimepicker({
+			pickDate: true,
+			pickTime: true
+		});
+		//-->
+	</script>
+	<script type="text/javascript">
+		<!--
+		$('#language a:first').tab('show');
+		$('#option a:first').tab('show');
+		//-->
+	</script>
+	<script type="text/javascript">
+		$(document).ready(function () {
+			$("#image-type").trigger("change");
+			$("#main-type").trigger("change");
+		});
+	</script>
+	<script type="text/javascript">
+		$("#image-type").change(function () {
+			var val = $("#image-type").val();
+			if (val == 'image') {
+				$('.image_featured').removeClass('hidden');
+				$('.youtube_featured').addClass('hidden');
+			} else if (val == 'youtube') {
+				$('.image_featured').addClass('hidden');
+				$('.youtube_featured').removeClass('hidden');
+			}
+
+		});
+
+		$("#main-type").change(function () {
+			var val = $("#main-type").val();
+			if (val == 'image') {
+				$('.main_image').removeClass('hidden');
+				$('.main_youtube').addClass('hidden');
+			} else if (val == 'youtube') {
+				$('.main_image').addClass('hidden');
+				$('.main_youtube').removeClass('hidden');
+			}
+		});
+	</script>
+</div>
+{{ footer }}

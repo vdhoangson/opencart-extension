@@ -1,0 +1,34 @@
+<div id="{{ module }}" class="owl-carousel">
+   {% for article in articles %}
+  <div class="item text-center">
+    {% if article.img_type == 'image'%}
+    <a href="{{ article.href ? article.href : '' }}">
+      <img src="{{ article.image }}" alt="{{ article.name }}" title="{{ article.name }}" class="img-responsive" />
+    </a>
+    {% elseif article.img_type == 'youtube' %}
+    <div class="flex-video">
+      <iframe src="{{ article.image }}" style="border: none;"></iframe>
+    </div>
+    {% endif %}
+    <div class="ic_caption">
+      <h3>
+        <a href="{{ article.href }}">{{ article.name }}</a>
+      </h3>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script type="text/javascript">
+$('#{{ module }}').owlCarousel({
+    items: 4,
+    margin: 10,
+    {% if block_data.show_nav == 1 %}
+    navigation: {% if block_data.show_nav == 1 %} true {% else %} false {% endif %},
+    navigationText: ['<i class="fa fa-chevron-left fa-5x"></i>', '<i class="fa fa-chevron-right fa-5x"></i>'],
+    {% endif %}
+    autoplay: {% if block_data.autoscroll == 1 %} true {% else %} false {% endif %},
+    autoplayHoverPause: {% if block_data.pauseonhover == 1 %} true {% else %} false {% endif %},
+    pagination: {% if block_data.show_dot == 1 %} true {% else %} false {% endif %}
+});
+</script>

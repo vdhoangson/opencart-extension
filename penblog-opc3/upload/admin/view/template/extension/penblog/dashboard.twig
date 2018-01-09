@@ -1,0 +1,173 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb"> 
+        {% for breadcrumb in breadcrumbs %}
+        <li>
+          <a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>
+        </li> 
+        {% endfor %}
+      </ul>
+      {{ shortcut }}
+    </div>
+  </div>
+  <div class="container-fluid" id="penblog"> {% if checkUpdate %}
+    <div class="row">
+      <div class="col-md-12">
+        <div class="alert alert-danger">
+          <i class="fa fa-exclamation-circle"></i> Please update Pen Blog now
+          <button type="button" data-toggle="tooltip" title="Update Now" class="btn btn-danger btn-sm" onclick="confirm('{{ text_confirm }}') ? window.location='{{ btn_update }}' : false;">
+            <i class="fa fa-level-up"></i> Update Now</button>
+        </div>
+      </div>
+    </div> {% endif %}
+    <div class="row">
+      <!-- Article -->
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-list"></i> {{ text_article }} </h3>
+          </div>
+          <div class="panel-body">
+            <ul class="list-group">
+              <li class="list-group-item">
+                <span class="badge"> {{ total_article }} </span> {{ text_total_article }} </li>
+              <li class="list-group-item">
+                <span class="badge"> {{ public_article }} </span> {{ text_public_article }} </li>
+              <li class="list-group-item">
+                <span class="badge"> {{ unpublic_article }} </span> {{ text_unpublic_article }} </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- Category -->
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-list"></i> {{ text_category }} </h3>
+          </div>
+          <div class="panel-body">
+            <ul class="list-group">
+              <li class="list-group-item">
+                <span class="badge"> {{ total_category }} </span> {{ text_total_category }} </li>
+              <li class="list-group-item">
+                <span class="badge"> {{ public_category }} </span> {{ text_public_category }} </li>
+              <li class="list-group-item">
+                <span class="badge"> {{ unpublic_category }} </span> {{ text_unpublic_category }} </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- Comment -->
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-list"></i> {{ text_comment }} </h3>
+          </div>
+          <div class="panel-body">
+            <ul class="list-group">
+              <li class="list-group-item">
+                <span class="badge"> {{ total_comment }} </span> {{ text_total_comment }} </li>
+              <li class="list-group-item">
+                <span class="badge"> {{ public_comment }} </span> {{ text_public_comment }} </li>
+              <li class="list-group-item">
+                <span class="badge"> {{ unpublic_comment }} </span> {{ text_unpublic_comment }} </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-list"></i> {{ text_latest_article }} </h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <td class="text-left"> {{ column_name }} </td>
+                    <td class="text-left"> {{ column_category }} </td>
+                    <td class="text-left"> {{ column_date_added }} </td>
+                    <td class="text-left"> {{ column_status }} </td>
+                    <td class="text-right"> {{ column_action }} </td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if latest_articles %} {% for article in latest_articles %}
+                  <tr>
+                    <td class="text-left"> {{ article.name }} </td>
+                    <td class="text-left"> {{ article.category }} </td>
+                    <td class="text-left"> {{ article.date_added }} </td>
+                    <td class="text-left"> {{ article.status }} </td>
+                    <td class="text-right">
+                      <a href="{{ article.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary btn-sm">
+                        <i class="fa fa-pencil"></i>
+                      </a>
+                      <a href="{{ article.view }}" data-toggle="tooltip" title="{{ button_view }}" class="btn btn-primary btn-sm" target="_blank">
+                        <i class="fa fa-eye"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  {% endfor %} {% else %}
+                  <tr>
+                    <td class="text-center" colspan="8"> {{ text_no_results }} </td>
+                  </tr> {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              <i class="fa fa-list"></i> {{ text_latest_testimonial }} </h3>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <td class="text-left"> {{ column_name }} </td>
+                    <td class="text-left"> {{ column_date_added }} </td>
+                    <td class="text-left"> {{ column_status }} </td>
+                    <td class="text-right"> {{ column_action }} </td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if latest_testimonials %} {% for testimonial in latest_testimonials %}
+                  <tr>
+                    <td class="text-left"> {{ testimonial.customer_name }} </td>
+                    <td class="text-left"> {{ testimonial.date_added }} </td>
+                    <td class="text-left"> {{ testimonial.status }} </td>
+                    <td class="text-right">
+                      <a href="{{ testimonial.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary btn-sm">
+                        <i class="fa fa-pencil"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  {% endfor %} {% else %}
+                  <tr>
+                    <td class="text-center" colspan="8"> {{ text_no_results }} </td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

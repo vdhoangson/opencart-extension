@@ -1,0 +1,202 @@
+{{ header }} {{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li>
+          <a href="{{ breadcrumb.href }}">
+            {{ breadcrumb.text }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="pull-right">
+        <button type="submit" form="form-comment" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary">
+          <i class="fa fa-save"></i>
+        </button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default">
+          <i class="fa fa-reply"></i>
+        </a>
+      </div>
+      {{ shortcut }}
+    </div>
+  </div>
+  <div class="container-fluid" id="penblog">
+    {% if error_warning %}
+    <div class="alert alert-danger">
+      <i class="fa fa-exclamation-circle"></i>
+      {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-pencil"></i>
+          {{ heading_title }}
+        </h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-poll" name="form-poll" class="form-horizontal">
+          <ul class="nav nav-tabs">
+            <li class="active">
+              <a href="#tab_general" data-toggle="tab">
+                {{ tab_general }}
+              </a>
+            </li>
+            <li>
+              <a href="#tab_results" data-toggle="tab">
+                {{ tab_results }}
+              </a>
+            </li>
+            <li>
+              <a href="#tab_data" data-toggle="tab">
+                {{ tab_data }}
+              </a>
+            </li>
+          </ul>
+          <div class="tab-content">
+            <div id="tab_general" class="tab-pane active">
+              <input type="hidden" name="color" data-selected="{{ color }}" class="form-control with-nav" />
+              <ul class="nav nav-tabs" id="language">
+                {% for language in languages %}
+                <li>
+                  <a href="#language{{ language.language_id }}" data-toggle="tab">
+                    <img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /> {{ language.name }}
+                  </a>
+                </li>
+                {% endfor %}
+              </ul>
+              <div class="tab-content">
+                {% for language in languages %}
+                <div id="language{{ language.language_id }}" class="tab-pane fade">
+                  <table class="table table-bordered table-hover">
+                    <tr>
+                      <td>
+                        <span class="required">*</span>
+                        {{ entry_question }}
+                      </td>
+                      <td>
+                        <input name="poll_description[{{ language.language_id }}][question]" value="{{ poll_description[language.language_id] ? poll_description[language.language_id].question : '' }}"
+                          class="form-control" /> {% if error_question[language.language_id] %}
+                        <span class="text-danger">
+                          {{ error_question[language.language_id] }}
+                        </span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% for i in 1..10 %}
+                    <tr>
+                      <td>
+                        {{ entry_answer }} {{ i }}
+                      </td>
+                      <td>
+                        {% set ans = 'answer_' ~ i %}
+                        <input name="poll_description[{{ language.language_id }}][answer_{{ i }}]" value="{{ poll_description[language.language_id] ? poll_description[language.language_id][ans]|trim : null }} " class="form-control" /> 
+                        {% if errors_answer[i][language.language_id] %}
+                        <span class="text-danger">
+                          {{ errors_answer[i][language.language_id] }}
+                        </span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </table>
+                </div>
+                <!-- //tab-pane-->
+                {% endfor %}
+              </div>
+              <!-- /tab-content-->
+            </div>
+            <div id="tab_results" class="tab-pane fade">
+              {% if reactions %}
+              <h2>
+                {{ text_poll_results }}
+              </h2>
+              <h3>
+                {{ poll_data.question }}
+              </h3>
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <td width="10%">
+                      {{ text_percent }}
+                    </td>
+                    <td>
+                      {{ text_answer }}
+                    </td>
+                  </tr>
+                </thead>
+                <tbody>
+                {% set labels = [] %}
+                {% set values = [] %}
+                  {% for i in 1..10 %}
+                  {% if poll_data['answer_' ~ i] %}
+                  {% set labels = labels|merge([poll_data['answer_' ~ i]]) %}
+                  {% set values = values|merge([percent[i]]) %}
+                  <tr>
+                    <td>
+                      <strong>{{ percent[i] }}%</strong>
+                    </td>
+                    <td>
+                      {{ poll_data['answer_' ~ i] }} ( {{ vote[i] }} )</td>
+                  </tr>
+                  {% endif %}
+                  {% endfor %}
+                </tbody>
+              </table>
+
+              {% if labels and values %}
+              {% set data_labels = labels|join('|') %}
+              {% set data_values = values|join(',') %}
+              <div style="text-align: center; margin-top: 10px;">
+                <img src="http://chart.apis.google.com/chart?cht=p3&chco=303F4A,E4EEF7,849721&chd=t:{{ data_values }}&chs=770x200&chl={{ data_labels }}"
+                  width="770" height="200" alt="chart" />
+              </div>
+              {% else %}
+              <div style="text-align: center; margin-top: 10px;">
+                {{ text_no_votes }}
+              </div>
+              {% endif %}
+              {% endif %}
+            </div>
+            <div id="tab_data" class="tab-pane fade">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                  <tr>
+                    <td>
+                      {{ entry_store }}
+                    </td>
+                    <td>
+                      <div class="well well-sm">
+                        <div>
+                          {% if 0 in poll_store|keys %}
+                          <input type="checkbox" name="poll_store[]" value="0" checked="checked" /> {{ text_default}} {% else %}
+                          <input type="checkbox" name="poll_store[]" value="0" checked="checked" /> {{ text_default }} {% endif %}
+                        </div>
+                        {% for store, class in stores %}
+                        <div>
+                          {% if store.store_id in poll_store|keys %}
+                          <input type="checkbox" name="poll_store[]" value="{{ store.store_id}}" checked="checked" /> {{ store.name }} {% else %}
+                          <input type="checkbox" name="poll_store[]" value="{{ store.store_id }}" checked="checked" /> {{ store.name }} {% endif %}
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <!-- //tab-content-->
+        </form>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      <!--
+      $('#language a:first').tab('show');
+      //-->
+    </script>
+    {{ footer }}

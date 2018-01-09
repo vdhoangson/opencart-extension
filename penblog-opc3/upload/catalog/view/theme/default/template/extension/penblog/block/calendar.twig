@@ -1,0 +1,14 @@
+<div id="{{ module }}" data-date="{{ today }}" data-date-format="yyyy-mm-dd"></div>
+<script type="text/javascript">
+$('#{{ module }}').datepicker({
+	todayBtn: 'linked'
+});
+$('#{{ module }}').datepicker()
+    .on('changeDate', function(e) {
+    	var value = $(this).datepicker('getFormattedDate');
+		
+		url = 'index.php?route=extension/penblog/search&date_added=' +  encodeURIComponent(value);
+		
+		location = url;
+    });
+</script>

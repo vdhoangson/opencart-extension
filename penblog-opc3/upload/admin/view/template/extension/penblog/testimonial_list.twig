@@ -1,0 +1,268 @@
+{{ header }} {{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ add }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary btn-sm">
+          <i class="fa fa-plus"></i>
+          {{ button_add }}
+        </a>
+        <button type="button" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger btn-sm" onclick="confirm('{{ text_confirm }}') ? $('#form-testimonial').submit() : false;">
+          <i class="fa fa-trash-o"></i>
+          {{ button_delete }}
+        </button>
+      </div>
+      <h1>
+        {{ heading_title }}
+      </h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li>
+          <a href="{{ breadcrumb.href }}">
+            {{ breadcrumb.text }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {{ shortcut }}
+    </div>
+  </div>
+  <div class="container-fluid" id="penblog">
+    {% if error_warning %}
+    <div class="alert alert-danger">
+      <i class="fa fa-exclamation-circle"></i>
+      {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %} {% if success %}
+    <div class="alert alert-success">
+      <i class="fa fa-check-circle"></i>
+      {{ success }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          <i class="fa fa-list"></i>
+          {{ heading_title }}
+        </h3>
+        <a href="{{ HTTP_CATALOG }}index.php?route=penblog/testimonial" class="btn blue-bg btn-sm pull-right" target="_blank">Front-end testimonial form</a>
+      </div>
+      <div class="panel-body">
+        <div class="well">
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-rating">
+                  <?php echo $column_rating; ?>
+                </label>
+                <select name="filter_rating" id="input-rating" class="form-control">
+                  <option value="*"></option>
+                  {% for i in 0..5 %}
+                  <option value="{{ i }}" {{ filter_rating==i ? 'selected="selected"': '' }}>
+                    {{ i }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="control-label" for="input-read">
+                  {{ column_read }}
+                </label>
+                <select name="filter_read" id="input-read" class="form-control">
+                  <option value="*"></option>
+                  <option value="1" {{ filter_read==1 ? 'selected="selected"' : '' }}>Read</option>
+                  <option value="0" {{ filter_read==0 ? 'selected="selected"' : '' }}>Unread</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="form-group">
+                <label class="control-label" for="input-status">
+                  {{ entry_status }}
+                </label>
+                <select name="filter_status" id="input-status" class="form-control">
+                  <option value="*"></option>
+                  <option value="1" {{ filter_status==1 ? 'selected="selected"' : '' }}>
+                    {{ text_enabled }}
+                  </option>
+                  <option value="0" {{ filter_status==0 ? 'selected="selected"' : '' }}>
+                    {{ text_disabled}}
+                  </option>
+                </select>
+              </div>
+              <button type="button" id="button-filter" class="btn btn-primary pull-right">
+                <i class="fa fa-search"></i>
+                {{ button_filter }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form">
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr>
+                  <td width="1" style="text-align: center;">
+                    <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" />
+                  </td>
+                  <td width="1" style="text-align: center;">
+                    {{ column_avatar }}
+                  </td>
+                  <td class="left">
+                    {% if sort == 'r.customer_name' %}
+                    <a href="{{ sort_customer }}" class="{{ order | lower }}">
+                      {{ column_customer }}
+                    </a>
+                    {% else %}
+                    <a href="{{ sort_customer }}">
+                      {{ column_customer }}
+                    </a>
+                    {% endif %}
+                  </td>
+                  <td class="text-center">
+                    {% if sort == 'r.rating' %}
+                    <a href="{{ sort_rating }}" class="{{ order | lower }}">
+                      {{ column_rating }}
+                    </a>
+                    {% else %}
+                    <a href="{{ sort_rating }}">
+                      {{ column_rating }}
+                    </a>
+                    {% endif %}
+                  </td>
+                  <td class="right">
+                    {% if sort == 'r.read' %}
+                    <a href="{{ sort_read }}" class="{{ order | lower }}">
+                      {{ column_read }}
+                    </a>
+                    {% else %}
+                    <a href="{{ sort_read }}">
+                      {{ column_read }}
+                    </a>
+                    {% endif %}
+                  </td>
+                  <td class="right">
+                    {% if sort == 'r.status' %}
+                    <a href="{{ sort_status }}" class="{{ order | lower }}">
+                      {{ column_status }}
+                    </a>
+                    {% else %}
+                    <a href="{{ sort_status }}">
+                      {{ column_status }}
+                    </a>
+                    {% endif %}
+                  </td>
+                  <td class="right">
+                    {% if sort == 'r.date_added' %}
+                    <a href="{{ sort_date_added }}" class="{{ order | lower }}">
+                      {{ column_date_added }}
+                    </a>
+                    {% else %}
+                    <a href="{{ sort_date_added }}">
+                      {{ column_date_added }}
+                    </a>
+                    {% endif %}
+                  </td>
+                  <td class="right">
+                    {{ column_action }}
+                  </td>
+                </tr>
+              </thead>
+              <tbody>
+                {% if testimonials %} {% for testimonial in testimonials %}
+                <tr>
+                  <td style="text-align: center;">
+                    {% if testimonial.selected %}
+                    <input type="checkbox" name="selected[]" value="{{ testimonial.testimonial_id }}" checked="checked" /> {% else %}
+                    <input type="checkbox" name="selected[]" value="{{ testimonial.testimonial_id }}" /> {% endif %}
+                  </td>
+                  <td style="text-align: center;" class="avatar">
+                    <img src="{{ testimonial.avatar }}" alt="{{ testimonial.customer_name }}" />
+                  </td>
+                  <td class="left">
+                    {{ testimonial.customer_name }}
+                    <br>
+                    <span class="help">
+                      {{ testimonial.competence }}
+                    </span>
+                  </td>
+
+                  <td class="text-center">
+                    <img src="view/template/extension/penblog/assets/rating/stars-{{ testimonial.rating }}.png" />
+                  </td>
+                  <td class="right">
+                    {{ testimonial.read }}
+                  </td>
+                  <td class="right">
+                    {{ testimonial.status }}
+                  </td>
+                  <td class="right">
+                    {{ testimonial.date_added }}
+                  </td>
+                  <td class="right">
+                    <div class="buttons">
+                      {% for action in testimonial.action %}
+                      <a class="btn btn-primary" href="{{ action.href }}" data-toogle="tooltip" title="{{ action.text }}">
+                        <i class="{{ action.icon }}"></i>
+                      </a>
+                      {% endfor %}
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %} {% else %}
+                <tr>
+                  <td class="text-center" colspan="9">
+                    {{ text_no_results }}
+                  </td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </form>
+        <div class="row">
+          <div class="col-sm-6 text-left">
+            {{ pagination }}
+          </div>
+          <div class="col-sm-6 text-right">
+            {{ results }}
+          </div>
+        </div>
+        <!--row -->
+      </div>
+      <!--panel-body -->
+      <div class="panel-footer">{{ penblog_powered }}</div>
+    </div>
+    <!--panel -->
+  </div>
+</div>
+<script type="text/javascript">
+  <!--
+  $('#button-filter').on('click', function () {
+    var url = 'index.php?route=penblog/testimonial&user_token={{ user_token }}';
+
+    var filter_rating = $('select[name=\'filter_rating\']').val();
+
+    if (filter_rating != '*') {
+      url += '&filter_rating=' + encodeURIComponent(filter_rating);
+    }
+
+    var filter_read = $('select[name=\'filter_read\']').val();
+
+    if (filter_read != '*') {
+      url += '&filter_read=' + encodeURIComponent(filter_read);
+    }
+
+    var filter_status = $('select[name=\'filter_status\']').val();
+
+    if (filter_status != '*') {
+      url += '&filter_status=' + encodeURIComponent(filter_status);
+    }
+
+    location = url;
+  });
+  //-->
+</script>
+{{ footer }}

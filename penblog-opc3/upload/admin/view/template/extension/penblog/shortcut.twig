@@ -1,0 +1,46 @@
+<nav class="navbar navbar-inverse" id="penblog_nav" role="navigation">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#penblog-nav" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a href="http://pencms.com" target="_blank" class="navbar-brand">PenBlog</a>
+    </div>
+    <div class="collapse navbar-collapse" id="penblog-nav">
+      <ul class="nav navbar-nav">
+        {% for shortcut in shortcuts %}
+          {% if not shortcut.childs %}
+          <li class="{{ shortcut.route == route ? 'active' : '' }}">
+            <a href="{{ shortcut.href }}">
+              <i class="{{ shortcut.icon }}"></i>
+              {{ shortcut.text }}
+            </a>
+          </li>
+          {% else %}
+          <li class="dropdown {{ shortcut.route == route ? 'active' : '' }}">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+              <i class="{{ shortcut.icon }}"></i>
+              {{ shortcut.text }}
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              {% for child in shortcut.childs %}
+              <li>
+                <a href="{{ child.href }}">
+                  <i class="{{ child.icon }}"></i>
+                  {{ child.text }}
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+          </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</nav>

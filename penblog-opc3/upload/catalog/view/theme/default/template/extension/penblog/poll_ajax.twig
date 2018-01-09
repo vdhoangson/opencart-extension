@@ -1,0 +1,29 @@
+<div class="clearfix">
+  {% if poll_data %}
+  <h5>{{ poll_data.question }}</h5>
+  {% if reactions %}
+  <div class="front-skills">
+    {% for i in 1..15 %}
+    {% if not empty poll_data['answer_'~($i + 1)] %}
+    <p> {{ percent[i] }}% - {{ poll_data['answer_'~($i + 1)] }}   ({{ vote[i] }} )</p>
+    <div class="progress">
+      <div role="progressbar" class="progress-bar {{ poll_data.color }}-bg" data-percent="{{ percent[i] }}" style="width: {{ percent[i] }}%;"></div>
+    </div>
+    {% endif %}
+    {% endfor %}
+    <div class="clearfix">
+      {{ text_total_votes }} {{ total_votes }}
+    </div>
+    {% if total_votes > 0 %}
+    <div class="buttons">
+      <div class="pull-right">
+        <a href="<?php echo $poll_results;?>"  class="modalbox btn btn-xs btn-primary" data-type="html" data-title="{{ poll_data.question }}">{{ text_poll_results }}</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  {% else %}
+  <div style="text-align: center;">{{ text_no_votes }}</div>
+  {% endif %}
+  {% endif %}
+</div>

@@ -1,0 +1,71 @@
+
+{% if articles %}
+<div class="tab-set set-atab">
+	<ul class="nav nav-tabs" id="tab-set-article">
+		{% for article in articles %}
+	  		<li><a data-toggle="tab" href="#article_{{ article.article_id }}">{{ article.name }}</a></li>
+		{% endfor %}
+	</ul>
+
+	<div class="tab-content">
+	{% for article in articles %}
+		<div id="article_{{ article.article_id }}" class="tab-pane fade">
+			<div class="row">
+				<div class="product-layout gen-cms-list col-sm-12">
+					<div class="product-thumb">
+          <div class="image">
+            {% if article.img_type == 'image' %}
+            <a href="{{ article.href }}">
+              <img src="{{ article.image }}" alt="{{ article.name }}" title="{{ article.name }}" class="img-responsive" />
+            </a>
+            {% elseif article.img_type == 'youtube' %}
+            <div class="flex-video">
+              <iframe src="{{ article.image }}" style="border: none;"></iframe>
+            </div>
+            {% endif %}
+          </div>
+          <div class="caption">
+            <h4>
+              <a href="{{ article.href }}">{{ article.name }}</a>
+            </h4>
+            <div class="info hidden-xs">
+              {% if setting.catalog_show_author %}
+              <span data-toggle="tooltip" title="{{ text_author }}">
+                <i class="fa fa-user"></i> {{ article.author }}</span>
+              {% endif %} 
+              {% if setting.catalog_show_date_added %}
+              <span data-toggle="tooltip" title="{{ text_date_added }}">
+                <i class="fa fa-pencil"></i> {{ article.date_added }}</span>
+              {% endif %} 
+              {% if setting.catalog_show_viewed %}
+              <span data-toggle="tooltip" title="{{ text_viewed }}">
+                <i class="fa fa-eye"></i> {{ article.viewed }}</span>
+              {% endif %}
+            </div>
+            <div class="rating">
+              {% for i in 1..5 %}
+                {% if article.rating < i %} 
+                <span class="fa fa-stack">
+                <i class="fa fa-star-o fa-stack-2x"></i>
+                </span>{% else %}
+                <span class="fa fa-stack">
+                  <i class="fa fa-star fa-stack-2x"></i>
+                  <i class="fa fa-star-o fa-stack-2x"></i>
+                </span> 
+                {% endif %}
+              {% endfor %}
+            </div>
+            <p>{{ article.short_description }}</p>
+          </div>
+            <a class="btn btn-primary button_readmore" href="{{ article.href }}">{{ text_readmore }}</a>
+          </div>
+        </div>
+			</div>
+		</div>
+	{% endfor %}
+	</div>
+	<script type="text/javascript"><!--
+	$('#tab-set-article a:first').tab('show');
+	//--></script>
+</div>
+{% endif %}

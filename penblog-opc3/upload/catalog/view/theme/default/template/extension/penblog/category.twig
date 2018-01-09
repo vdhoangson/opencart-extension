@@ -1,0 +1,148 @@
+{{ header }}
+<div class="container" id="penblog_category">
+  <ul class="breadcrumb">
+    {% for breadcrumb in breadcrumbs %}
+    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+    {% endfor %}
+  </ul>
+  <div class="row">{{ column_left }}
+    {% if column_left and column_right %}
+    {% set class = 'col-sm-6' %}
+    {% elseif column_left or column_right %}
+    {% set class = 'col-sm-9' %}
+    {% else %}
+    {% set class = 'col-sm-12' %}
+    {% endif %}
+    <div id="content" class="{{ class }}">{{ content_top }}
+      <h2>{{ heading_title }}</h2>
+      {% if thumb or description %}
+      <div class="row"> {% if thumb %}
+        <div class="col-sm-2"><img src="{{ thumb }}" alt="{{ heading_title }}" title="{{ heading_title }}" class="img-thumbnail" /></div>
+        {% endif %}
+        {% if description %}
+        <div class="col-sm-10">{{ description }}</div>
+        {% endif %}</div>
+      <hr>
+      {% endif %}
+      {% if categories %}
+      <h3>{{ text_refine }}</h3>
+      {% if categories|length <= 5 %}
+      <div class="row">
+        <div class="col-sm-3">
+          <ul>
+            {% for category in categories %}
+            <li><a href="{{ category.href }}">{{ category.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% else %}
+      <div class="row">{% for category in categories|batch((categories|length / 4)|round(1, 'ceil')) %}
+        <div class="col-sm-3">
+          <ul>
+            {% for child in category %}
+            <li><a href="{{ child.href }}">{{ child.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}</div>
+      <br />
+      {% endif %}
+      {% endif %}
+      {% if articles %}
+      <div class="row">
+        <div class="col-md-4">
+          <div class="btn-group hidden-xs">
+            <button type="button" id="list-view" class="btn btn-default" data-toggle="tooltip" title="{{ button_list }}"><i class="fa fa-th-list"></i></button>
+            <button type="button" id="grid-view" class="btn btn-default" data-toggle="tooltip" title="{{ button_grid }}"><i class="fa fa-th"></i></button>
+          </div>
+        </div>
+        {% if catalog_show_filter %}
+        <div class="col-md-2 text-right">
+          <label class="control-label" for="input-sort">{{ text_sort }}</label>
+        </div>
+        <div class="col-md-3 text-right">
+          <select id="input-sort" class="form-control" onchange="location = this.value;">
+            {% for sorts in sorts %}
+              {% if sorts.value == '%s-%s'|format(sort, order) %}
+              <option value="{{ sorts.href }}" selected="selected">{{ sorts.text }}</option>
+              {% else %}
+              <option value="{{ sorts.href }}">{{ sorts.text }}</option>
+              {% endif %}
+              {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-1 text-right">
+          <label class="control-label" for="input-limit">{{ text_limit }}</label>
+        </div>
+        <div class="col-md-2 text-right">
+          <select id="input-limit" class="form-control" onchange="location = this.value;">
+            {% for limits in limits %}
+            {% if limits.value == limit %}
+            <option value="{{ limits.href }}" selected="selected">{{ limits.text }}</option>
+            {% else %}
+            <option value="{{ limits.href }}">{{ limits.text }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+      </div>
+      <br />
+      <div class="row">
+        {% for article in articles %}
+        <div class="product-layout gen-cms-list col-xs-12">
+          <div class="product-thumb">
+            <div class="image">
+              {% if article.img_type == 'image' %}
+              <a href="{{ article.href }}"><img src="{{ article.thumb }}" alt="{{ article.name }}" title="{{ article.name }}" class="img-responsive" /></a>
+              {% elseif article.img_type == 'youtube' %}
+                 <iframe width="{{ catalog_image_article_width }}" height="{{ catalog_image_article_height }}" src="{{ article.thumb }}" style="border: none;"></iframe>
+              {% endif %}
+            </div>
+            <div>
+              <div class="caption">
+                <h4><a href="{{ article.href }}">{{ article.name }}</a></h4>
+                <div class="info hidden-xs">
+                  {% if catalog_show_author %}
+                  <span data-toggle="tooltip" title="{{ text_author }}"><i class="fa fa-user"></i> {{ article.author }}</span>
+                  {% endif %}
+                  {% if catalog_show_date_added %}
+                  <span data-toggle="tooltip" title="{{ text_date_added }}"><i class="fa fa-pencil"></i> {{ article.date_added }}</span>
+                  {% endif %}
+                  {% if catalog_show_date_modified %}
+                  <span data-toggle="tooltip" title="{{ text_date_modified }}"><i class="fa fa-pencil-square"></i> {{ article.date_modified }}</span>
+                  {% endif %}
+                  {% if catalog_show_viewed %}
+                  <span data-toggle="tooltip" title="{{ text_viewed }}"><i class="fa fa-eye"></i> {{ article.viewed }}</span>
+                  {% endif %}
+                </div>
+                {% if article.rating %}
+                <div class="rating"> {% for i in 1..5 %}
+                  {% if article.rating < i %} <span class="fa fa-stack"><i class="fa fa-star-o fa-stack-2x"></i></span> {% else %} <span class="fa fa-stack"><i class="fa fa-star fa-stack-2x"></i><i class="fa fa-star-o fa-stack-2x"></i></span>{% endif %}
+                  {% endfor %} </div>
+                {% endif %}
+                <p>{{ article.short_description }}</p>
+              </div>
+              <a class="btn btn-primary button_readmore" href="{{ article.href }}">{{ text_readmore }}</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="row">
+        <div class="col-sm-6 text-left">{{ pagination }}</div>
+        <div class="col-sm-6 text-right">{{ results }}</div>
+      </div>
+      {% endif %}
+
+      {% if not categories and not articles %}
+      <p>{{ text_empty }}</p>
+      <div class="buttons">
+        <div class="pull-right"><a href="{{ continue }}" class="btn btn-primary">{{ button_continue }}</a></div>
+      </div>
+      {% endif %}
+      {{ content_bottom }}</div>
+    {{ column_right }}</div>
+</div>
+{{ footer }}

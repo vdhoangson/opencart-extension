@@ -1,0 +1,27 @@
+<div id="{{ module }}" class="owl-carousel" style="opacity: 1;">
+  {% for article in articles %}
+  <div class="item">
+    {% if article.img_type == 'image' %}
+	    <a href="{{ article.href ? article.href : '' }}"><img src="{{ article.image }}" alt="{{ article.name }} title="{{ article.name }} class="img-responsive" /></a>
+  	{% elseif article.img_type == 'youtube' %}
+    	<iframe width="{{ image_width }}" height="{{ image_height * 0.95 }}" frameborder="0" src="{{ article.image }}"></iframe>
+  	{% endif %}
+  	<div class="ic_caption">
+      <h3><a href="{{ article.href }}">{{ article.name }}</a></h3>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script type="text/javascript">
+	$('#{{ module }}').owlCarousel({
+		singleItem: true,
+		{% if block_data.show_nav == 1 %}
+		navigation: {{ block_data.show_nav == 1 ? true : false }},
+		navigationText: ['<i class="fa fa-chevron-left fa-5x"></i>', '<i class="fa fa-chevron-right fa-5x"></i>'],
+		{% endif %}
+		autoplay: {{ block_data.autoscroll == 1 ? true : false }},
+		autoplayHoverPause: {{ block_data.pauseonhover == 1 ? true : false }},
+		pagination: {{ block_data.show_dot == 1 ? true : false }}
+	});
+</script>
