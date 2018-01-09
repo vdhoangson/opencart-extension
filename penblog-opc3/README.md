@@ -12,7 +12,7 @@ News/blog module for Opencart 3x
 <a href="http://pencms.com/OPC/penblog3/admin/">http://pencms.com/OPC/penblog3/admin/</a>
 demo/demo
 
-# By a coffee for me
+# Buy a coffee for me
 <a href="https://www.paypal.me/vdhson">https://www.paypal.me/vdhson</a>
 
 # Contact
